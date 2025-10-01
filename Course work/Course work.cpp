@@ -2,32 +2,36 @@
 //
 
 #include <iostream>
-#include <conio.h> // For _getch() and _kbhit()
+#include <conio.h> // For _getch()
 using namespace std;  
 
 int main()
 {
-    cout << "Hello World!\n";
+    cout << "Choose option!\n";
     int menu=NULL;
-    while (menu != 6)
-    {       
-        try
-        {
-            menu= _getch();
-        }
-        catch (exception ex)
-        {
-            menu = NULL;
-        }
+    while (menu != 54)
+    {              
+        cout << "\033[2J\033[1;1H"; // Console clear
+        cout << "1.\n";
+        cout << "2.\n";
+        cout << "3.\n";
+        cout << "4.\n";
+        cout << "5.\n";
+        cout << "6. Exit\n";
+        menu = _getch();
         switch (menu)
         {
-        case 1:
+        case 49:
             break;
-        case 2:
+        case 50:
             break;
-        case 3:
+        case 51:
             break;
-        case 4:
+        case 52:
+            break;
+        case 53:
+            break;
+        case 54:
             break;
         }
     }
