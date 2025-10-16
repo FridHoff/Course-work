@@ -13,24 +13,25 @@ struct Computer
 	string brand;
 	float price;
 	string proc;
-	unsigned int ram;
-	unsigned int memory;
-	unsigned int memory_count;
+	int ram;
+	int memory;
+	int memory_count;
 };
 
 void writeStruct(struct Computer comp)
 {	
-	FILE* f; // переменная для работы с файлом
-	int i; // счётчик
+	//FILE* f; // переменная для работы с файлом
+	//int i; // счётчик
 
-	f = fopen("data.dat", "ab+"); // открываем бинарный файл для записи и чтения в режиме добавления, то есть, если файла нет, то он создастся, а если файл есть, то содержимое файла не будет уничтожено, из файла можно будет читать и в файл можно будет записывать	
-	//for (i = 0; i < 10; i++) // запишем в файл в цикле 10 пакетов
-	//{
-	//	pack.i = pack.i + 1;
-	//	pack.d = pack.d + 11;
-		fwrite(&comp, sizeof(Computer), 1, f); // записываем в файл f ровно 1 comp размера computer
-	//}
-		fclose(f); // закрываем файл
+	//f = fopen("data.dat", "ab+"); // открываем бинарный файл для записи и чтения в режиме добавления, то есть, если файла нет, то он создастся, а если файл есть, то содержимое файла не будет уничтожено, из файла можно будет читать и в файл можно будет записывать	
+	////for (i = 0; i < 10; i++) // запишем в файл в цикле 10 пакетов
+	////{
+	////	pack.i = pack.i + 1;
+	////	pack.d = pack.d + 11;
+	//	fwrite(&comp, sizeof(Computer), 1, f); // записываем в файл f ровно 1 comp размера computer
+	////}
+	//	fclose(f); // закрываем файл
+
 	/*ofstream ofs("data.dat", ios::out | ios::binary);
  
     if(ofs.is_open()) {
@@ -60,14 +61,15 @@ void writeStruct(struct Computer comp)
 }
 void readStruct()
 {
-	Computer comp;
-	FILE* f;
-	f = fopen("data.dat", "ab+");
-	fseek(f, 0/*4 * sizeof(int_double),*/, SEEK_SET); // перемещаемся от начала (SEEK_SET) файла f на 4 длинны пакета int_double, то есть к началу 5-го пакету
-	fread(&comp, sizeof(Computer), 1, f); // считываем из файла f ровно 1 comp размера computer
-	printf("%-20s %5d \n", comp.brand, comp.price, comp.proc,comp.ram, comp.memory, comp.memory_count);	
-	getch(); // ожидаем нажатия пользователем клавиши
-	fclose(f); // закрываем файл
+	//Computer comp;
+	//FILE* f;
+	//f = fopen("data.dat", "ab+");
+	//fseek(f, 1/*4 * sizeof(int_double),*/, SEEK_SET); // перемещаемся от начала (SEEK_SET) файла f на 4 длинны пакета int_double, то есть к началу 5-го пакету
+	//fread(&comp, sizeof(Computer), 1, f); // считываем из файла f ровно 1 comp размера computer
+	//printf("%-20s %5d \n", comp.brand, comp.price, comp.proc,comp.ram, comp.memory, comp.memory_count);	
+	//getch(); // ожидаем нажатия пользователем клавиши
+	//fclose(f); // закрываем файл
+
 	/*struct Computer comp;
 	ifstream ifs("out_course.dat", ios::in | ios::binary);
 
@@ -126,7 +128,20 @@ int main()
 		case 49: // 1.
 			cout << "\033[2J\033[1;1H";
 			cout << "Computer list\n";
-			readStruct();
+			FILE* f_read; // переменная для работы с файлом
+
+			f_read = fopen("alc.dat", "ab+"); // открываем бинарный файл для записи и чтения в режиме добавления, то есть, если файла нет, то он создастся, а если файл есть, то содержимое файла не будет уничтожено, из файла можно будет читать и в файл можно будет записывать						
+			fseek(f_read, 1 * sizeof(computer), SEEK_SET); // перемещаемся от начала (SEEK_SET) файла f на 4 длинны пакета int_double, то есть к началу 5-го пакету
+			fread(&computer, sizeof(Computer), 1, f_read); // считываем из файла f ровно 1 пакет pack размера int_double
+			cout << computer.brand;
+			cout << computer.memory;
+			cout << computer.memory_count;
+			cout << computer.price;
+			cout << computer.proc;
+			cout << computer.ram;//printf("%d %f", computer.brand, computer.memory, computer.memory_count, computer.price, computer.proc, computer.ram); // выводим 5-й пакет (5 55.0) на экран
+			getch(); // ожидаем нажатия пользователем клавиши
+			fclose(f_read); // закрываем файл
+			//readStruct();
 			_getch();
 			break;
 		case 50: // 2.      			
@@ -163,7 +178,21 @@ int main()
 			cout << "Please enter the following data:\n";
 			cout << "Count of memory storages\n";
 			cin >> computer.memory_count;
-			writeStruct(&computer);
+			
+
+			
+			FILE* f; // переменная для работы с файлом
+
+			f = fopen("alc.dat", "ab+"); // открываем бинарный файл для записи и чтения в режиме добавления, то есть, если файла нет, то он создастся, а если файл есть, то содержимое файла не будет уничтожено, из файла можно будет читать и в файл можно будет записывать			
+			
+				fwrite(&computer, sizeof(Computer), 1, f); // записываем в файл f ровно 1 пакет pack размера int_double 			
+			fseek(f, 1 * sizeof(computer), SEEK_SET); // перемещаемся от начала (SEEK_SET) файла f на 4 длинны пакета int_double, то есть к началу 5-го пакету
+			fread(&computer, sizeof(Computer), 1, f); // считываем из файла f ровно 1 пакет pack размера int_double
+			cout << computer.brand, computer.memory, computer.memory_count, computer.price, computer.proc, computer.ram;//printf("%d %f", computer.brand, computer.memory, computer.memory_count, computer.price, computer.proc, computer.ram); // выводим 5-й пакет (5 55.0) на экран
+			getch(); // ожидаем нажатия пользователем клавиши
+			fclose(f); // закрываем файл
+
+			//writeStruct(computer);
 			break;
 		case 51:
 			break;
