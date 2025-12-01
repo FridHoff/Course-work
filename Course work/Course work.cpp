@@ -2,6 +2,7 @@
 //
 
 #include <iostream>
+#include <iomanip>
 #include <stdlib.h> // For 
 #include <conio.h> // For _getch()
 #include <stdio.h> // For files
@@ -128,20 +129,31 @@ int main()
 		switch (menu)
 		{
 		case 49: // 1.
+			menu = NULL;
+			computer = { "afe", "fnvceuiwj", 321, 2, 3, 4.3};			
 			cout << "\033[2J\033[1;1H";
-			cout << "Computer list\n";
+			//cout << "Computer list\n";
 			FILE* f_read; // переменная для работы с файлом
-			f_read = fopen("alc.dat", "ab+"); // открываем бинарный файл для записи и чтения в режиме добавления, то есть, если файла нет, то он создастся, а если файл есть, то содержимое файла не будет уничтожено, из файла можно будет читать и в файл можно будет записывать						
-			fseek(f_read, 1 * sizeof(computer), SEEK_SET); // перемещаемся от начала (SEEK_SET) файла f на 4 длинны структуры, то есть к началу 5-й структуры
-			fread(&computer, sizeof(Computer), 1, f_read); // считываем из файла f ровно 1 структуру размера Computer
-			cout << "Производитель" << "\t" << "Процессор" << "\t" << "ОЗУ" << "\t" << "Память" << "\t" << "Кол-во накопителей" << "\t" << "Цена" << "\t";
-			cout << computer.brand <<"\t" << computer.proc << "\t" << computer.ram << "\t" << computer.memory << "\t" << computer.memory_count << "\t" << computer.price << "\t";
+			//"E:\\alc.dat", "ab+
+			f_read = fopen("E:\\alc.dat", "ab+");                                   // открываем бинарный файл для записи и чтения в режиме добавления, то есть, если файла нет, то он создастся, 
+																					// а если файл есть, то содержимое файла не будет уничтожено, из файла можно будет читать и в файл можно будет записывать						
+			fseek(f_read, 0, SEEK_SET); // перемещаемся от начала (SEEK_SET) файла f на 4 длинны структуры, то есть к началу 5-й структуры
+			fread(&computer, sizeof(Computer), 1, f_read); // считываем из файла f ровно 1 структуру размера Computer			
+			cout<< setw(15)<<cout.fill('*') << "Manufacturer" 
+				<< setw(15) << cout.fill('*') << "\t" << "Processor" 
+				<< setw(15) << cout.fill('*') << "\t" << "RAM" 
+				<< setw(15) << cout.fill('*') << "\t" << "Memory" 
+				<< setw(15) << cout.fill('*') << "\t" << "Memory count" 
+				<< setw(15) << cout.fill('*') << "\t" << "Price" << "\n";
+			cout << setw(15) << cout.fill('*') << computer.brand <<"\t" << computer.proc << "\t" << computer.ram << "\t" << computer.memory << "\t" << computer.memory_count << "\t" << computer.price << "\n";
 			fclose(f_read); // закрываем файл
-			cout << "Для выхода в меню нажмите любую клавишу";
+			cout << "Press any button to exit...";
 			//readStruct();
+			
 			_getch();
 			break;
-		case 50: // 2.      			
+		case 50: // 2.      		
+			menu = NULL;
 			//if (fp)
 			//{
 			//	// посимвольно записываем в файл
@@ -177,33 +189,39 @@ int main()
 			cin >> computer.memory_count;
 		
 			FILE* f; // переменная для работы с файлом
-
-			f = fopen("alc.dat", "ab+"); // открываем бинарный файл для записи и чтения в режиме добавления, то есть, если файла нет, то он создастся, а если файл есть, то содержимое файла не будет уничтожено, из файла можно будет читать и в файл можно будет записывать			
-			fwrite(&flag, sizeof(int), 1, f);
-			fwrite(&computer, sizeof(Computer), 1, f); // записываем в файл f ровно 1 пакет pack размера int_double 			
-			fseek(f, 1 * sizeof(computer), SEEK_SET); // перемещаемся от начала (SEEK_SET) файла f на 4 длинны пакета int_double, то есть к началу 5-го пакету
+			//"E:\\alc.dat", "ab+"
+			f = fopen("E:\\alc.dat", "ab+"); // открываем бинарный файл для записи и чтения в режиме добавления, то есть, если файла нет, то он создастся, а если файл есть, то содержимое файла не будет уничтожено, из файла можно будет читать и в файл можно будет записывать			
+			//fwrite(&flag, sizeof(int), 1, f);
+			fwrite(&computer, sizeof(Computer), 1, f); // записываем в файл f р		
+			//1 * sizeof(computer)
+			fseek(f, 0, SEEK_SET); // перемещаемся от начала (SEEK_SET) файла f на 4 длинны пакета int_double, то есть к началу 5-го пакету
 			fread(&computer, sizeof(Computer), 1, f); // считываем из файла f ровно 1 пакет pack размера int_double
-			cout << computer.brand, computer.memory, computer.memory_count, computer.price, computer.proc, computer.ram;//printf("%d %f", computer.brand, computer.memory, computer.memory_count, computer.price, computer.proc, computer.ram); // выводим 5-й пакет (5 55.0) на экран
-			getch(); // ожидаем нажатия пользователем клавиши
+			cout << computer.brand << "\t" << computer.proc << "\t" << computer.ram << "\t" << computer.memory << "\t" << computer.memory_count << "\t" << computer.price << "\n";
+			_getch(); // ожидаем нажатия пользователем клавиши
 			fclose(f); // закрываем файл
 
 			//writeStruct(computer);
 			break;
 		case 51:
+			menu = NULL;
 			break;
 		case 52:
+			menu = NULL;
 			break;
 		case 53:
+			menu = NULL;
 			break;
-		case 54:
+		case 54:			
+			//delete &computer;
+			//exit
 			break;
 		}
 	}
-
-
-
-
 }
+
+
+
+
 
 
 
