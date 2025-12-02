@@ -20,7 +20,7 @@ struct Computer
 };
 
 void writeStruct(struct Computer comp)
-{	
+{
 	//FILE* f; // переменная для работы с файлом
 	//int i; // счётчик
 
@@ -34,12 +34,12 @@ void writeStruct(struct Computer comp)
 	//	fclose(f); // закрываем файл
 
 	/*ofstream ofs("data.dat", ios::out | ios::binary);
- 
-    if(ofs.is_open()) {
-            ofs.write((char *)&comp, sizeof(comp));
-    }
- 
-    ofs.close();*/
+
+	if(ofs.is_open()) {
+			ofs.write((char *)&comp, sizeof(comp));
+	}
+
+	ofs.close();*/
 	//FILE* fp;
 	//char* c;
 	//int size = sizeof(struct Computer); // количество записываемых байтов
@@ -78,6 +78,12 @@ void readStruct()
 		ifs.read((char*)&comp, sizeof(comp));
 	}*/
 
+
+
+
+
+
+
 	//FILE* fp;
 	//char* c;
 	//int i; // для считывания одного символа
@@ -106,6 +112,19 @@ void readStruct()
 	//printf("%-20s %5d \n", ptr->brand, ptr->price, ptr->proc,ptr->ram, ptr->memory, ptr->memory_count);
 	//free(ptr);
 	//return 0;
+
+
+
+
+	//работает, но с непонятной ошибкой
+	// 
+	//FILE* f_read; // переменная для работы с файлом
+	////"E:\\alc.dat", "ab+
+	//f_read = fopen("E:\\alc.dat", "ab+");                                   // открываем бинарный файл для записи и чтения в режиме добавления, то есть, если файла нет, то он создастся, 
+	//// а если файл есть, то содержимое файла не будет уничтожено, из файла можно будет читать и в файл можно будет записывать						
+	//fseek(f_read, 0, SEEK_SET); // перемещаемся от начала (SEEK_SET) файла f на 4 длинны структуры, то есть к началу 5-й структуры
+	//fread(&computer, sizeof(Computer), 1, f_read); // считываем из файла f ровно 1 структуру размера Computer			
+	//fclose(f_read); // закрываем файл
 }
 
 int main()
@@ -114,8 +133,10 @@ int main()
 	int menu, flag;
 	menu = NULL;
 	flag = 1;
-	Computer computer;	
+	Computer computer;
 	//FILE* fp = fopen("data.txt", "w");
+			int size = sizeof(struct Computer);
+			struct Computer* ptr = (struct Computer*)malloc(size);
 	while (menu != 54)
 	{
 		cout << "\033[2J\033[1;1H"; // Console clear and start from top left of window
@@ -130,26 +151,42 @@ int main()
 		{
 		case 49: // 1.
 			menu = NULL;
-			computer = { "afe", "fnvceuiwj", 321, 2, 3, 4.3};			
 			cout << "\033[2J\033[1;1H";
 			//cout << "Computer list\n";
-			FILE* f_read; // переменная для работы с файлом
-			//"E:\\alc.dat", "ab+
-			f_read = fopen("E:\\alc.dat", "ab+");                                   // открываем бинарный файл для записи и чтения в режиме добавления, то есть, если файла нет, то он создастся, 
-																					// а если файл есть, то содержимое файла не будет уничтожено, из файла можно будет читать и в файл можно будет записывать						
-			fseek(f_read, 0, SEEK_SET); // перемещаемся от начала (SEEK_SET) файла f на 4 длинны структуры, то есть к началу 5-й структуры
-			fread(&computer, sizeof(Computer), 1, f_read); // считываем из файла f ровно 1 структуру размера Computer			
-			cout<< setw(15)<<cout.fill('*') << "Manufacturer" 
-				<< setw(15) << cout.fill('*') << "\t" << "Processor" 
-				<< setw(15) << cout.fill('*') << "\t" << "RAM" 
-				<< setw(15) << cout.fill('*') << "\t" << "Memory" 
-				<< setw(15) << cout.fill('*') << "\t" << "Memory count" 
+			FILE* fp;
+			char* c;
+			int i; // для считывания одного символа
+			// количество считываемых байтов
+			// выделяем память для считываемой структуры
+			fp = fopen("E:\\data.bin", "rb");     // открываем файл для бинарного чтения
+			if (!fp)
+			{
+				printf("Error occured while opening file \n");
+				return 1;
+			}
+
+			// устанавливаем указатель на начало блока выделенной памяти
+			c = (char*)ptr;
+			// считываем посимвольно из файла
+			while ((i = getc(fp)) != EOF)
+			{
+				*c = i;
+				c++;
+			}
+
+			fclose(fp);
+			// вывод на консоль загруженной структуры
+			//printf("%-20s %5d \n", ptr->brand, ptr->price, ptr->proc, ptr->ram, ptr->memory, ptr->memory_count);
+			cout << setw(15) << cout.fill('*') << "Manufacturer"
+				<< setw(15) << cout.fill('*') << "\t" << "Processor"
+				<< setw(15) << cout.fill('*') << "\t" << "RAM"
+				<< setw(15) << cout.fill('*') << "\t" << "Memory"
+				<< setw(15) << cout.fill('*') << "\t" << "Memory count"
 				<< setw(15) << cout.fill('*') << "\t" << "Price" << "\n";
-			cout << setw(15) << cout.fill('*') << computer.brand <<"\t" << computer.proc << "\t" << computer.ram << "\t" << computer.memory << "\t" << computer.memory_count << "\t" << computer.price << "\n";
-			fclose(f_read); // закрываем файл
+			cout << setw(15) << cout.fill('*') << ptr->brand << "\t" << ptr->proc << "\t" << ptr->ram << "\t" << ptr->memory << "\t" << ptr->memory_count << "\t" << ptr->price << "\n";
 			cout << "Press any button to exit...";
 			//readStruct();
-			
+			free(ptr);
 			_getch();
 			break;
 		case 50: // 2.      		
@@ -166,7 +203,7 @@ int main()
 			cout << "\033[2J\033[1;1H";
 			cout << "Please enter the following data:\n";
 			cout << "Brand\n";
-			cin >> computer.brand;			
+			cin >> computer.brand;
 			cout << "\033[2J\033[1;1H";
 			cout << "Please enter the following data:\n";
 			cout << "Price\n";
@@ -187,10 +224,10 @@ int main()
 			cout << "Please enter the following data:\n";
 			cout << "Count of memory storages\n";
 			cin >> computer.memory_count;
-		
+
 			FILE* f; // переменная для работы с файлом
 			//"E:\\alc.dat", "ab+"
-			f = fopen("E:\\alc.dat", "ab+"); // открываем бинарный файл для записи и чтения в режиме добавления, то есть, если файла нет, то он создастся, а если файл есть, то содержимое файла не будет уничтожено, из файла можно будет читать и в файл можно будет записывать			
+			f = fopen("E:\\data.bin", "ab+"); // открываем бинарный файл для записи и чтения в режиме добавления, то есть, если файла нет, то он создастся, а если файл есть, то содержимое файла не будет уничтожено, из файла можно будет читать и в файл можно будет записывать			
 			//fwrite(&flag, sizeof(int), 1, f);
 			fwrite(&computer, sizeof(Computer), 1, f); // записываем в файл f р		
 			//1 * sizeof(computer)
@@ -211,7 +248,7 @@ int main()
 		case 53:
 			menu = NULL;
 			break;
-		case 54:			
+		case 54:
 			//delete &computer;
 			//exit
 			break;
