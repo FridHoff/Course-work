@@ -18,99 +18,51 @@ struct Computer
 	int memory_count;
 	float price;
 };
-
-void _writeStruct()
+enum class Option { Write, Delete };
+// ФУНКЦИЯ ЗАПИСИ СТРУКТУРЫ В ФАЙЛ
+void _writeStruct(Computer computer, Option option)
 {
-	Computer computer;
-	cout << "\033[2J\033[1;1H";
-	cout << "Please enter the following data:\n";
-	cout << "Brand\n";
-	cin >> computer.brand;
-	cout << "\033[2J\033[1;1H";
-	cout << "Please enter the following data:\n";
-	cout << "Price\n";
-	cin >> computer.price;
-	cout << "\033[2J\033[1;1H";
-	cout << "Please enter the following data:\n";
-	cout << "Processor\n";
-	cin >> computer.proc;
-	cout << "\033[2J\033[1;1H";
-	cout << "Please enter the following data:\n";
-	cout << "Amount of RAM\n";
-	cin >> computer.ram;
-	cout << "\033[2J\033[1;1H";
-	cout << "Please enter the following data:\n";
-	cout << "Amount of memory\n";
-	cin >> computer.memory;
-	cout << "\033[2J\033[1;1H";
-	cout << "Please enter the following data:\n";
-	cout << "Count of memory storages\n";
-	cin >> computer.memory_count;
-
 	FILE* f; // переменная для работы с файлом
-	//"E:\\alc.dat", "ab+"
-	f = fopen("E:\\data.bin", "ab+"); // открываем бинарный файл для записи и чтения в режиме добавления, то есть, если файла нет, то он создастся, а если файл есть, то содержимое файла не будет уничтожено, из файла можно будет читать и в файл можно будет записывать			
-	//fwrite(&flag, sizeof(int), 1, f);
-	fwrite(&computer, sizeof(Computer), 1, f); // записываем в файл f р		
-	//1 * sizeof(computer)			
-	fclose(f); // закрываем файл
-
-
-
-
-	//FILE* f; // переменная для работы с файлом
-	//int i; // счётчик
-
-	//f = fopen("data.dat", "ab+"); // открываем бинарный файл для записи и чтения в режиме добавления, то есть, если файла нет, то он создастся, а если файл есть, то содержимое файла не будет уничтожено, из файла можно будет читать и в файл можно будет записывать	
-	////for (i = 0; i < 10; i++) // запишем в файл в цикле 10 пакетов
-	////{
-	////	pack.i = pack.i + 1;
-	////	pack.d = pack.d + 11;
-	//	fwrite(&comp, sizeof(Computer), 1, f); // записываем в файл f ровно 1 comp размера computer
-	////}
-	//	fclose(f); // закрываем файл
-
-	/*ofstream ofs("data.dat", ios::out | ios::binary);
-
-	if(ofs.is_open()) {
-			ofs.write((char *)&comp, sizeof(comp));
+	switch (option)
+	{
+	case Option::Write:
+	{
+		//E:\\data.bin
+		f = fopen("data.bin", "ab+"); // открываем бинарный файл для записи и чтения в режиме добавления, то есть, если файла нет, то он создастся, а если файл есть, 
+		// то содержимое файла не будет уничтожено, из файла можно будет читать и в файл можно будет записывать				
+		fwrite(&computer, sizeof(Computer), 1, f); // записываем в файл f р		
+		fclose(f); // закрываем файл
+		cout << "\033[2J\033[1;1H";
+		cout << "\nNew computer sucсessfully added!\n\nPress any key to continue...";
+		_getch(); // ожидаем нажатия пользователем клавиши
 	}
-
-	ofs.close();*/
-	//FILE* fp;
-	//char* c;
-	//int size = sizeof(struct Computer); // количество записываемых байтов
-
-	//fp = fopen("data.bin", "wb"); //открываем файл для бинарной записи
-	//if (!fp)    // если не удалось открыть файл
-	//{
-	//	printf("Error occured while opening file \n");
-	//	return 1;
-	//}
-	//// устанавливаем указатель на начало структуры
-	//c = (char*)p;
-	//// посимвольно записываем в файл структуру
-	//for (int i = 0; i < size; i++)
-	//{
-	//	putc(*c++, fp);
-	//}
-	//fclose(fp);
-	//return 0;
+	case Option::Delete:
+	{
+		f = fopen("dataNew.bin", "ab+");
+		fwrite(&computer, sizeof(Computer), 1, f); // записываем в файл f р		
+		fclose(f); // закрываем файл		
+	}
+	}
 }
+// ФУНКЦИЯ ЧТЕНИЯ ИЗ ФАЙЛА
 void _readStruct()
 {
 	struct Computer* computer = (struct Computer*)malloc(sizeof(Computer));
 	FILE* file; // переменная для работы с файлом
-	long i = 0, fEnd;
-	if (file = fopen("E:\\data.bin", "rb"))                                   // открываем бинарный файл для чтения 							
-	{	
+	long i = 0, fEnd;    // переменная для обозначения конца файла
+	//E:\\data.bin
+	if (file = fopen("data.bin", "rb"))                                   // открываем бинарный файл для чтения 							
+	{
 		fseek(file, 0, SEEK_END); // перемещаем курсор в конец файла.
 		fEnd = ftell(file);					// функция выдаст конечное положнние курсора относительно начала файла в байтах.				
 		while (i < fEnd)
 		{
-		fseek(file, i, SEEK_SET); // перемещаемся от начала (SEEK_SET) файла на ... длинн структуры
+			fseek(file, i, SEEK_SET); // перемещаемся от начала (SEEK_SET) файла на ... длинн структуры
 			fread(computer, sizeof(Computer), 1, file); // считываем из файла f ровно 1 структуру размера Computer			
 			// вывод на консоль загруженной структуры
+			cout.width(4);
+			cout.fill(' ');
+			cout << i / sizeof(Computer)+1<<')';
 			cout.width(15);
 			cout.fill(' ');
 			cout << computer->brand;
@@ -131,74 +83,41 @@ void _readStruct()
 			cout << computer->price << "\n";
 			i += sizeof(Computer);
 		}
-			fclose(file); // закрываем файл
-			free(computer);
+		fclose(file); // закрываем файл
+		free(computer);
 	}
 	else
 		throw 404;
-	//Computer comp;
-	//FILE* f;
-	//f = fopen("data.dat", "ab+");
-	//fseek(f, 1/*4 * sizeof(int_double),*/, SEEK_SET); // перемещаемся от начала (SEEK_SET) файла f на 4 длинны пакета int_double, то есть к началу 5-го пакету
-	//fread(&comp, sizeof(Computer), 1, f); // считываем из файла f ровно 1 comp размера computer
-	//printf("%-20s %5d \n", comp.brand, comp.price, comp.proc,comp.ram, comp.memory, comp.memory_count);	
-	//getch(); // ожидаем нажатия пользователем клавиши
-	//fclose(f); // закрываем файл
-
-	/*struct Computer comp;
-	ifstream ifs("out_course.dat", ios::in | ios::binary);
-
-	if (ifs.is_open()) {
-		ifs.read((char*)&comp, sizeof(comp));
-	}*/
-
-
-
-
-
-
-
-	//FILE* fp;
-	//char* c;
-	//int i; // для считывания одного символа
-	//// количество считываемых байтов
-	//int size = sizeof(struct Computer);
-	//// выделяем память для считываемой структуры
-	//struct Computer* ptr = (struct Computer*)malloc(size);
-	//fp = fopen("data.bin", "rb");     // открываем файл для бинарного чтения
-	//if (!fp)
-	//{
-	//	printf("Error occured while opening file \n");
-	//	return 1;
-	//}
-
-	//// устанавливаем указатель на начало блока выделенной памяти
-	//c = (char*)ptr;
-	//// считываем посимвольно из файла
-	//while ((i = getc(fp)) != EOF)
-	//{
-	//	*c = i;
-	//	c++;
-	//}
-
-	//fclose(fp);
-	//// вывод на консоль загруженной структуры
-	//printf("%-20s %5d \n", ptr->brand, ptr->price, ptr->proc,ptr->ram, ptr->memory, ptr->memory_count);
-	//free(ptr);
-	//return 0;
-
-
-
-
-	//работает, но с непонятной ошибкой
-	// 
-	//FILE* f_read; // переменная для работы с файлом
-	////"E:\\alc.dat", "ab+
-	//f_read = fopen("E:\\alc.dat", "ab+");                                   // открываем бинарный файл для записи и чтения в режиме добавления, то есть, если файла нет, то он создастся, 
-	//// а если файл есть, то содержимое файла не будет уничтожено, из файла можно будет читать и в файл можно будет записывать						
-	//fseek(f_read, 0, SEEK_SET); // перемещаемся от начала (SEEK_SET) файла f на 4 длинны структуры, то есть к началу 5-й структуры
-	//fread(&computer, sizeof(Computer), 1, f_read); // считываем из файла f ровно 1 структуру размера Computer			
-	//fclose(f_read); // закрываем файл
+}
+// ФУНКЦИЯ УДАЛЕНИЯ ПК ИЗ ФАЙЛА
+void _delStruct(int number)
+{
+	struct Computer* computer = (struct Computer*)malloc(sizeof(Computer));
+	FILE* file; // переменная для работы с файлом
+	long i = 0, fEnd;    // переменная для обозначения конца файла
+	//E:\\data.bin	
+	file = fopen("data.bin", "rb");
+	fseek(file, 0, SEEK_END); // перемещаем курсор в конец файла.
+	fEnd = ftell(file);					// функция выдаст конечное положнние курсора относительно начала файла в байтах.				
+	fclose(file); // закрываем файл
+	while (i < fEnd)
+	{
+		if (i == number * sizeof(Computer))
+		{
+			i += sizeof(Computer);
+			continue;
+		}
+		file = fopen("data.bin", "rb");
+		fseek(file, i, SEEK_SET); // перемещаемся от начала (SEEK_SET) файла на ... длинн структуры
+		fread(computer, sizeof(Computer), 1, file); // считываем из файла f ровно 1 структуру размера Computer			
+		// вывод на консоль загруженной структуры
+	fclose(file); // закрываем файл
+		_writeStruct(*computer, Option::Delete);
+		i += sizeof(Computer);
+	}
+	free(computer);
+	remove("data.bin");
+	rename("dataNew.bin", "data.bin");
 }
 
 int main()
@@ -206,13 +125,13 @@ int main()
 	cout << "Choose option!\n";
 	int menu;
 	menu = NULL;
-
+	Computer computer;
 	while (menu != 54)
 	{
 		cout << "\033[2J\033[1;1H"; // Console clear and start from top left of window
 		cout << "1.Computer list\n";
 		cout << "2.Add computer\n";
-		cout << "3.\n";
+		cout << "3.Delete computer\n";
 		cout << "4.\n";
 		cout << "5.\n";
 		cout << "6. Exit\n";
@@ -222,6 +141,9 @@ int main()
 		case 49: // 1.
 			menu = NULL;
 			cout << "\033[2J\033[1;1H";
+			cout.width(4);
+			cout.fill(' ');
+			cout << "N";
 			cout.width(15);
 			cout.fill(' ');
 			cout << "Manufacturer";
@@ -254,13 +176,119 @@ int main()
 			break;
 		case 50: // 2.      		
 			menu = NULL;
-			_writeStruct();
 			cout << "\033[2J\033[1;1H";
-			cout << "\nNew computer sucсessfully added!\n\nPress any key to continue...";
-			_getch(); // ожидаем нажатия пользователем клавиши
+			cout << "Please enter the following data:\n";
+			cout << "Brand\n";
+			cin >> computer.brand;
+			while (true)
+			{
+				cout << "\033[2J\033[1;1H";
+				cout << "Please enter the following data:\n";
+				cout << "Price\n";
+				if (cin >> computer.price)
+					break;
+				else
+				{
+					cout << "\033[2J\033[1;1H" << "Incorrect data! Try again...";
+					_getch();
+					cin.clear();
+					cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+				}
+			}
+			cout << "\033[2J\033[1;1H";
+			cout << "Please enter the following data:\n";
+			cout << "Processor\n";
+			cin >> computer.proc;
+			while (true)
+			{
+				cout << "\033[2J\033[1;1H";
+				cout << "Please enter the following data:\n";
+				cout << "Amount of RAM\n";
+				if (cin >> computer.ram)
+					break;
+				else
+				{
+					cout << "\033[2J\033[1;1H" << "Incorrect data! Try again...";
+					_getch();
+					cin.clear();
+					cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+				}
+			}
+			while (true)
+			{
+				cout << "\033[2J\033[1;1H";
+				cout << "Please enter the following data:\n";
+				cout << "Amount of memory\n";
+				if (cin >> computer.memory)
+					break;
+				else
+				{
+					cout << "\033[2J\033[1;1H" << "Incorrect data! Try again...";
+					_getch();
+					cin.clear();
+					cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+				}
+			}
+			while (true)
+			{
+				cout << "\033[2J\033[1;1H";
+				cout << "Please enter the following data:\n";
+				cout << "Count of memory storages\n";
+				if (cin >> computer.memory_count)
+					break;
+				else
+				{
+					cout << "\033[2J\033[1;1H" << "Incorrect data! Try again...";
+					_getch();
+					cin.clear();
+					cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+				}
+			}
+			_writeStruct(computer, Option::Write);
 			break;
 		case 51:
 			menu = NULL;
+			cout << "\033[2J\033[1;1H";
+			
+			cout.width(4);
+			cout.fill(' ');
+			cout << "N";
+			cout.width(15);
+			cout.fill(' ');
+			cout << "Manufacturer";
+			cout.width(15);
+			cout.fill(' ');
+			cout << "Processor";
+			cout.width(10);
+			cout.fill(' ');
+			cout << "RAM";
+			cout.width(15);
+			cout.fill(' ');
+			cout << "Memory";
+			cout.width(20);
+			cout.fill(' ');
+			cout << "Memory count";
+			cout.width(15);
+			cout.fill(' ');
+			cout << "Price" << "\n";
+			try
+			{
+				_readStruct();
+			}
+			catch (int code)
+			{
+				cout << "\033[2J\033[1;1H";
+				cout << "Error 404\n\nComputers not found\n\n";
+				cout << "Press any button to exit...";
+				_getch();
+				break;
+			}
+			cout << "Enter whitch computer you want to destroy:\n";
+			cin >> menu;
+			_delStruct(menu-1);
+			menu = NULL;
+			cout << "Press any button to exit...";
+			_getch();
 			break;
 		case 52:
 			menu = NULL;
