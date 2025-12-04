@@ -18,7 +18,8 @@ struct Computer
 	int memory_count;
 	float price;
 };
-enum class Option { Write, Delete };
+enum class Option { Write, Delete, Edit };
+int computerCount;
 // ФУНКЦИЯ ЗАПИСИ СТРУКТУРЫ В ФАЙЛ
 void _writeStruct(Computer computer, Option option)
 {
@@ -42,11 +43,19 @@ void _writeStruct(Computer computer, Option option)
 		fwrite(&computer, sizeof(Computer), 1, f); // записываем в файл f р		
 		fclose(f); // закрываем файл		
 	}
+	case Option::Edit:
+	{
+		f = fopen("data.bin", "ab+");
+		fseek(f, i, SEEK_SET);
+		fwrite(&computer, sizeof(Computer), 1, f); // записываем в файл f р		
+		fclose(f); // закрываем файл		
+	}
 	}
 }
 // ФУНКЦИЯ ЧТЕНИЯ ИЗ ФАЙЛА
 void _readStruct()
 {
+	computerCount = 0;
 	struct Computer* computer = (struct Computer*)malloc(sizeof(Computer));
 	FILE* file; // переменная для работы с файлом
 	long i = 0, fEnd;    // переменная для обозначения конца файла
@@ -62,7 +71,7 @@ void _readStruct()
 			// вывод на консоль загруженной структуры
 			cout.width(4);
 			cout.fill(' ');
-			cout << i / sizeof(Computer)+1<<')';
+			cout << i / sizeof(Computer) + 1 << ')';
 			cout.width(15);
 			cout.fill(' ');
 			cout << computer->brand;
@@ -81,6 +90,7 @@ void _readStruct()
 			cout.width(15);
 			cout.fill(' ');
 			cout << computer->price << "\n";
+			computerCount++;
 			i += sizeof(Computer);
 		}
 		fclose(file); // закрываем файл
@@ -111,7 +121,7 @@ void _delStruct(int number)
 		fseek(file, i, SEEK_SET); // перемещаемся от начала (SEEK_SET) файла на ... длинн структуры
 		fread(computer, sizeof(Computer), 1, file); // считываем из файла f ровно 1 структуру размера Computer			
 		// вывод на консоль загруженной структуры
-	fclose(file); // закрываем файл
+		fclose(file); // закрываем файл
 		_writeStruct(*computer, Option::Delete);
 		i += sizeof(Computer);
 	}
@@ -131,14 +141,14 @@ int main()
 		cout << "\033[2J\033[1;1H"; // Console clear and start from top left of window
 		cout << "1.Computer list\n";
 		cout << "2.Add computer\n";
-		cout << "3.Delete computer\n";
-		cout << "4.\n";
+		cout << "3.Edit computer\n";
+		cout << "4.Delete computer\n";
 		cout << "5.\n";
 		cout << "6. Exit\n";
 		menu = _getch();
 		switch (menu)
 		{
-		case 49: // 1.
+		case 49:																	// 1. LIST
 			menu = NULL;
 			cout << "\033[2J\033[1;1H";
 			cout.width(4);
@@ -174,7 +184,7 @@ int main()
 			cout << "Press any button to exit...";
 			_getch();
 			break;
-		case 50: // 2.      		
+		case 50:															// 2. ADD
 			menu = NULL;
 			cout << "\033[2J\033[1;1H";
 			cout << "Please enter the following data:\n";
@@ -246,59 +256,120 @@ int main()
 			}
 			_writeStruct(computer, Option::Write);
 			break;
-		case 51:
+		case 51:																	//   EDIT
 			menu = NULL;
-			cout << "\033[2J\033[1;1H";
-			
-			cout.width(4);
-			cout.fill(' ');
-			cout << "N";
-			cout.width(15);
-			cout.fill(' ');
-			cout << "Manufacturer";
-			cout.width(15);
-			cout.fill(' ');
-			cout << "Processor";
-			cout.width(10);
-			cout.fill(' ');
-			cout << "RAM";
-			cout.width(15);
-			cout.fill(' ');
-			cout << "Memory";
-			cout.width(20);
-			cout.fill(' ');
-			cout << "Memory count";
-			cout.width(15);
-			cout.fill(' ');
-			cout << "Price" << "\n";
-			try
-			{
-				_readStruct();
-			}
-			catch (int code)
+			while (true)
 			{
 				cout << "\033[2J\033[1;1H";
-				cout << "Error 404\n\nComputers not found\n\n";
-				cout << "Press any button to exit...";
-				_getch();
-				break;
+
+				cout.width(4);
+				cout.fill(' ');
+				cout << "N";
+				cout.width(15);
+				cout.fill(' ');
+				cout << "Manufacturer";
+				cout.width(15);
+				cout.fill(' ');
+				cout << "Processor";
+				cout.width(10);
+				cout.fill(' ');
+				cout << "RAM";
+				cout.width(15);
+				cout.fill(' ');
+				cout << "Memory";
+				cout.width(20);
+				cout.fill(' ');
+				cout << "Memory count";
+				cout.width(15);
+				cout.fill(' ');
+				cout << "Price" << "\n";
+				try
+				{
+					_readStruct();
+				}
+				catch (int code)
+				{
+					cout << "\033[2J\033[1;1H";
+					cout << "Error 404\n\nComputers not found\n\n";
+					cout << "Press any button to exit...";
+					_getch();
+					break;
+				}
+				cout << "Enter whitch computer you want to destroy:\n";
+				if (cin >> menu && menu <= computerCount && menu != 0)
+					break;
+				else
+				{
+					cout << "\033[2J\033[1;1H" << "Incorrect data! Try again...";
+					_getch();
+					cin.clear();
+					cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+				}
 			}
-			cout << "Enter whitch computer you want to destroy:\n";
-			cin >> menu;
-			_delStruct(menu-1);
+			_delStruct(menu - 1);
 			menu = NULL;
 			cout << "Press any button to exit...";
 			_getch();
 			break;
-		case 52:
+		case 52:																		// DELETE
 			menu = NULL;
+			while (true)
+			{
+				cout << "\033[2J\033[1;1H";
+
+				cout.width(4);
+				cout.fill(' ');
+				cout << "N";
+				cout.width(15);
+				cout.fill(' ');
+				cout << "Manufacturer";
+				cout.width(15);
+				cout.fill(' ');
+				cout << "Processor";
+				cout.width(10);
+				cout.fill(' ');
+				cout << "RAM";
+				cout.width(15);
+				cout.fill(' ');
+				cout << "Memory";
+				cout.width(20);
+				cout.fill(' ');
+				cout << "Memory count";
+				cout.width(15);
+				cout.fill(' ');
+				cout << "Price" << "\n";
+				try
+				{
+					_readStruct();
+				}
+				catch (int code)
+				{
+					cout << "\033[2J\033[1;1H";
+					cout << "Error 404\n\nComputers not found\n\n";
+					cout << "Press any button to exit...";
+					_getch();
+					break;
+				}
+				cout << "Enter whitch computer you want to destroy:\n";
+				if (cin >> menu && menu <= computerCount && menu != 0)
+					break;
+				else
+				{
+					cout << "\033[2J\033[1;1H" << "Incorrect data! Try again...";
+					_getch();
+					cin.clear();
+					cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+				}
+			}
+			_delStruct(menu - 1);
+			menu = NULL;
+			cout << "Press any button to exit...";
+			_getch();
 			break;
 		case 53:
 			menu = NULL;
 			break;
-		case 54:
-			//delete &computer;
-			//exit
+		case 54:			
 			break;
 		}
 	}
