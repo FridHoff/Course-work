@@ -21,7 +21,7 @@ struct Computer
 enum class Option { Write, Delete, Edit };
 int computerCount;
 // ФУНКЦИЯ ЗАПИСИ СТРУКТУРЫ В ФАЙЛ
-void _writeStruct(Computer computer, Option option)
+void _writeStruct(Computer computer, Option option, int i = NULL)
 {
 	FILE* f; // переменная для работы с файлом
 	switch (option)
@@ -45,8 +45,8 @@ void _writeStruct(Computer computer, Option option)
 	}
 	case Option::Edit:
 	{
-		f = fopen("data.bin", "ab+");
-		fseek(f, i, SEEK_SET);
+		f = fopen("data.bin", "r+");  // r+ для изменения файла
+		fseek(f, i*sizeof(Computer), SEEK_SET);
 		fwrite(&computer, sizeof(Computer), 1, f); // записываем в файл f р		
 		fclose(f); // закрываем файл		
 	}
@@ -132,13 +132,13 @@ void _delStruct(int number)
 
 int main()
 {
-	cout << "Choose option!\n";
 	int menu;
 	menu = NULL;
 	Computer computer;
 	while (menu != 54)
 	{
 		cout << "\033[2J\033[1;1H"; // Console clear and start from top left of window
+	cout << "Choose option!\n\n";
 		cout << "1.Computer list\n";
 		cout << "2.Add computer\n";
 		cout << "3.Edit computer\n";
@@ -295,7 +295,7 @@ int main()
 					_getch();
 					break;
 				}
-				cout << "Enter whitch computer you want to destroy:\n";
+				cout << "Enter whitch computer you want to edit:\n";
 				if (cin >> menu && menu <= computerCount && menu != 0)
 					break;
 				else
@@ -306,7 +306,75 @@ int main()
 					cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
 				}
 			}
-			_delStruct(menu - 1);
+			cout << "\033[2J\033[1;1H";
+			cout << "Please enter the following data:\n";
+			cout << "Brand\n";
+			cin >> computer.brand;
+			while (true)
+			{
+				cout << "\033[2J\033[1;1H";
+				cout << "Please enter the following data:\n";
+				cout << "Price\n";
+				if (cin >> computer.price)
+					break;
+				else
+				{
+					cout << "\033[2J\033[1;1H" << "Incorrect data! Try again...";
+					_getch();
+					cin.clear();
+					cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+				}
+			}
+			cout << "\033[2J\033[1;1H";
+			cout << "Please enter the following data:\n";
+			cout << "Processor\n";
+			cin >> computer.proc;
+			while (true)
+			{
+				cout << "\033[2J\033[1;1H";
+				cout << "Please enter the following data:\n";
+				cout << "Amount of RAM\n";
+				if (cin >> computer.ram)
+					break;
+				else
+				{
+					cout << "\033[2J\033[1;1H" << "Incorrect data! Try again...";
+					_getch();
+					cin.clear();
+					cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+				}
+			}
+			while (true)
+			{
+				cout << "\033[2J\033[1;1H";
+				cout << "Please enter the following data:\n";
+				cout << "Amount of memory\n";
+				if (cin >> computer.memory)
+					break;
+				else
+				{
+					cout << "\033[2J\033[1;1H" << "Incorrect data! Try again...";
+					_getch();
+					cin.clear();
+					cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+				}
+			}
+			while (true)
+			{
+				cout << "\033[2J\033[1;1H";
+				cout << "Please enter the following data:\n";
+				cout << "Count of memory storages\n";
+				if (cin >> computer.memory_count)
+					break;
+				else
+				{
+					cout << "\033[2J\033[1;1H" << "Incorrect data! Try again...";
+					_getch();
+					cin.clear();
+					cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+				}
+			}
+			_writeStruct(computer, Option::Edit, menu-1);
 			menu = NULL;
 			cout << "Press any button to exit...";
 			_getch();
