@@ -33,7 +33,7 @@ public:
 	}
 	//метод, добавляющий новый узел в список
 	void addNode(Computer comp)
-	{			
+	{
 		Computer* item = (Computer*)(malloc(sizeof(Computer))); //динамически создаем новый узел		
 		strcpy(item->brand, comp.brand);     //задаем узлу данные		
 		strcpy(item->proc, comp.proc);
@@ -46,7 +46,7 @@ public:
 			head = item;
 		else                 //если узел уже не первый
 		{
-			Computer *current = head;
+			Computer* current = head;
 			//ищем в цикле предшествующий последнему узел
 			while (current->next != NULL)
 				current = current->next;
@@ -57,7 +57,7 @@ public:
 	//метод, выводящий связанный список на экран
 	void printList()
 	{
-		Computer *current = head;
+		Computer* current = head;
 		int i = 1;
 		while (current != NULL)
 		{
@@ -117,7 +117,7 @@ void _writeStruct(Computer computer, Option option, int i = NULL)
 	case Option::Edit:
 	{
 		f = fopen("data.bin", "r+");  // r+ для изменения файла
-		fseek(f, i*sizeof(Computer), SEEK_SET);
+		fseek(f, i * sizeof(Computer), SEEK_SET);
 		fwrite(&computer, sizeof(Computer), 1, f); // записываем в файл f р		
 		fclose(f); // закрываем файл		
 	}
@@ -189,7 +189,7 @@ int main()
 	while (menu != 54)
 	{
 		cout << "\033[2J\033[1;1H"; // Console clear and start from top left of window
-	cout << "Choose option!\n\n";
+		cout << "Choose option!\n\n";
 		cout << "1.Computer list\n";
 		cout << "2.Add computer\n";
 		cout << "3.Edit computer\n";
@@ -238,11 +238,23 @@ int main()
 			break;
 		case 50:															// ADD
 			menu = NULL;
-			char temp[39];
-			cout << "\033[2J\033[1;1H";
-			cout << "Please enter the following data:\n";
-			cout << "Brand\n";
-			cin.getline(computer.brand, 15);
+			while (true)
+			{
+				cout << "\033[2J\033[1;1H";
+				cout << "Please enter the following data:\n";
+				cout << "Brand\n";
+				if (cin.getline(computer.brand, 15))
+				{
+					break;
+				}
+				else
+				{
+					cout << "\033[2J\033[1;1H" << "Incorrect data! Try again...";
+					_getch();
+					cin.clear();
+				}
+			}
+			cin.clear();
 			while (true)
 			{
 				cout << "\033[2J\033[1;1H";
@@ -258,10 +270,21 @@ int main()
 					cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
 				}
 			}
-			cout << "\033[2J\033[1;1H";
-			cout << "Please enter the following data:\n";
-			cout << "Processor\n";
-			cin.getline(computer.proc, 25);			
+			while (true)
+			{
+				cout << "\033[2J\033[1;1H";
+				cout << "Please enter the following data:\n";
+				cout << "Processor\n";
+				if (cin.getline(computer.proc, 25))
+					break;
+				else
+				{
+					cout << "\033[2J\033[1;1H" << "Incorrect data! Try again...";
+					_getch();
+					cin.clear();
+				}
+			}
+			cin.clear();
 			while (true)
 			{
 				cout << "\033[2J\033[1;1H";
@@ -277,6 +300,7 @@ int main()
 					cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
 				}
 			}
+			cin.clear();
 			while (true)
 			{
 				cout << "\033[2J\033[1;1H";
@@ -292,6 +316,7 @@ int main()
 					cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
 				}
 			}
+			cin.clear();
 			while (true)
 			{
 				cout << "\033[2J\033[1;1H";
@@ -427,7 +452,7 @@ int main()
 					cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
 				}
 			}
-			_writeStruct(computer, Option::Edit, menu-1);
+			_writeStruct(computer, Option::Edit, menu - 1);
 			menu = NULL;
 			cout << "Press any button to exit...";
 			_getch();
@@ -490,7 +515,7 @@ int main()
 		case 53:
 			menu = NULL;
 			break;
-		case 54:			
+		case 54:
 			break;
 		}
 	}
