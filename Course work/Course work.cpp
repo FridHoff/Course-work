@@ -3,22 +3,93 @@
 
 #include <iostream>
 #include <iomanip>
-#include <stdlib.h> // For 
+#include <stdlib.h> // For malloc()
 #include <conio.h> // For _getch()
 #include <stdio.h> // For files
 #include <fstream>
+#include <string>
 using namespace std;
 
 struct Computer
 {
-	string brand;
-	string proc;
+	char brand[15];
+	char proc[25];
 	int ram;
 	int memory;
 	int memory_count;
 	float price;
+	Computer* next;
 };
+
+// Динамический список
+class List                 // список
+{
+private:
+	Computer* head; //"голова" связанного списка
+public:
+	List() //конструктор класса без параметров
+	{
+		head = NULL; //первого элемента пока нет
+	}
+	//метод, добавляющий новый узел в список
+	void addNode(Computer comp)
+	{			
+		Computer* item = (Computer*)(malloc(sizeof(Computer))); //динамически создаем новый узел		
+		strcpy(item->brand, comp.brand);     //задаем узлу данные		
+		strcpy(item->proc, comp.proc);
+		item->ram = comp.ram;
+		item->memory = comp.memory;
+		item->memory_count = comp.memory_count;
+		item->price = comp.price;
+		item->next = NULL;     //новый узел в конце, поэтому NULL
+		if (head == NULL)     //если создаем первый узел
+			head = item;
+		else                 //если узел уже не первый
+		{
+			Computer *current = head;
+			//ищем в цикле предшествующий последнему узел
+			while (current->next != NULL)
+				current = current->next;
+			//предшествующий указывает на последний
+			current->next = item;
+		}
+	}
+	//метод, выводящий связанный список на экран
+	void printList()
+	{
+		Computer *current = head;
+		int i = 1;
+		while (current != NULL)
+		{
+			cout.width(4);
+			cout.fill(' ');
+			cout << i << ')';
+			cout.width(15);
+			cout.fill(' ');
+			cout << current->brand;
+			cout.width(25);
+			cout.fill(' ');
+			cout << current->proc;
+			cout.width(10);
+			cout.fill(' ');
+			cout << current->ram;
+			cout.width(15);
+			cout.fill(' ');
+			cout << current->memory;
+			cout.width(20);
+			cout.fill(' ');
+			cout << current->memory_count;
+			cout.width(15);
+			cout.fill(' ');
+			cout << current->price << "\n";
+			i++;
+			current = current->next;
+		}
+	}
+};    // Динамический список
+// Перечисление для функции записи
 enum class Option { Write, Delete, Edit };
+// Переменная для подсчёта кол-ва компов в файле
 int computerCount;
 // ФУНКЦИЯ ЗАПИСИ СТРУКТУРЫ В ФАЙЛ
 void _writeStruct(Computer computer, Option option, int i = NULL)
@@ -53,7 +124,7 @@ void _writeStruct(Computer computer, Option option, int i = NULL)
 	}
 }
 // ФУНКЦИЯ ЧТЕНИЯ ИЗ ФАЙЛА
-void _readStruct()
+void _readStruct(List& list)
 {
 	computerCount = 0;
 	struct Computer* computer = (struct Computer*)malloc(sizeof(Computer));
@@ -69,28 +140,7 @@ void _readStruct()
 			fseek(file, i, SEEK_SET); // перемещаемся от начала (SEEK_SET) файла на ... длинн структуры
 			fread(computer, sizeof(Computer), 1, file); // считываем из файла f ровно 1 структуру размера Computer			
 			// вывод на консоль загруженной структуры
-			cout.width(4);
-			cout.fill(' ');
-			cout << i / sizeof(Computer) + 1 << ')';
-			cout.width(15);
-			cout.fill(' ');
-			cout << computer->brand;
-			cout.width(15);
-			cout.fill(' ');
-			cout << computer->proc;
-			cout.width(10);
-			cout.fill(' ');
-			cout << computer->ram;
-			cout.width(15);
-			cout.fill(' ');
-			cout << computer->memory;
-			cout.width(20);
-			cout.fill(' ');
-			cout << computer->memory_count;
-			cout.width(15);
-			cout.fill(' ');
-			cout << computer->price << "\n";
-			computerCount++;
+			list.addNode(*computer);
 			i += sizeof(Computer);
 		}
 		fclose(file); // закрываем файл
@@ -132,6 +182,7 @@ void _delStruct(int number)
 
 int main()
 {
+	List list;
 	int menu;
 	menu = NULL;
 	Computer computer;
@@ -148,7 +199,7 @@ int main()
 		menu = _getch();
 		switch (menu)
 		{
-		case 49:																	// 1. LIST
+		case 49:																	// SHOW LIST
 			menu = NULL;
 			cout << "\033[2J\033[1;1H";
 			cout.width(4);
@@ -157,7 +208,7 @@ int main()
 			cout.width(15);
 			cout.fill(' ');
 			cout << "Manufacturer";
-			cout.width(15);
+			cout.width(25);
 			cout.fill(' ');
 			cout << "Processor";
 			cout.width(10);
@@ -174,22 +225,24 @@ int main()
 			cout << "Price" << "\n";
 			try
 			{
-				_readStruct();
+				_readStruct(list);
 			}
 			catch (int code)
 			{
 				cout << "\033[2J\033[1;1H";
 				cout << "Error 404\n\nComputers not found\n\n";
 			}
+			list.printList();
 			cout << "Press any button to exit...";
 			_getch();
 			break;
-		case 50:															// 2. ADD
+		case 50:															// ADD
 			menu = NULL;
+			char temp[39];
 			cout << "\033[2J\033[1;1H";
 			cout << "Please enter the following data:\n";
 			cout << "Brand\n";
-			cin >> computer.brand;
+			cin.getline(computer.brand, 15);
 			while (true)
 			{
 				cout << "\033[2J\033[1;1H";
@@ -208,7 +261,7 @@ int main()
 			cout << "\033[2J\033[1;1H";
 			cout << "Please enter the following data:\n";
 			cout << "Processor\n";
-			cin >> computer.proc;
+			cin.getline(computer.proc, 25);			
 			while (true)
 			{
 				cout << "\033[2J\033[1;1H";
@@ -256,7 +309,7 @@ int main()
 			}
 			_writeStruct(computer, Option::Write);
 			break;
-		case 51:																	//   EDIT
+		case 51:																	// EDIT
 			menu = NULL;
 			while (true)
 			{
@@ -285,7 +338,7 @@ int main()
 				cout << "Price" << "\n";
 				try
 				{
-					_readStruct();
+					_readStruct(list);
 				}
 				catch (int code)
 				{
@@ -391,7 +444,7 @@ int main()
 				cout.width(15);
 				cout.fill(' ');
 				cout << "Manufacturer";
-				cout.width(15);
+				cout.width(25);
 				cout.fill(' ');
 				cout << "Processor";
 				cout.width(10);
@@ -408,7 +461,7 @@ int main()
 				cout << "Price" << "\n";
 				try
 				{
-					_readStruct();
+					_readStruct(list);
 				}
 				catch (int code)
 				{
