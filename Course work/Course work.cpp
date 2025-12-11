@@ -54,6 +54,16 @@ public:
 			current->next = item;
 		}
 	}
+	void Clear()
+	{
+		Computer* current = this->head;
+		while (current != nullptr) {
+			Computer* nextNode = current->next; // Сохраняем следующий
+			delete current;                 // Удаляем текущий
+			current = nextNode;             // Переходим к следующему
+		}
+		this->head = nullptr; // Список пуст
+	}
 	//метод, выводящий связанный список на экран
 	void printList()
 	{
@@ -186,6 +196,21 @@ int main()
 	int menu;
 	menu = NULL;
 	Computer computer;
+	try
+	{
+		_readStruct(list);
+	}
+	catch (int code)
+	{
+		while (menu != 49 || menu != 50)
+		{
+			cout << "\033[2J\033[1;1H";
+			cout << "Error 404\n\nComputers not found\n\n";
+			cout << "1.Add computer\n";
+			cout << "2. Exit\n";
+			menu = _getch();
+		}
+	}
 	while (menu != 54)
 	{
 		cout << "\033[2J\033[1;1H"; // Console clear and start from top left of window
@@ -223,15 +248,6 @@ int main()
 			cout.width(15);
 			cout.fill(' ');
 			cout << "Price" << "\n";
-			try
-			{
-				_readStruct(list);
-			}
-			catch (int code)
-			{
-				cout << "\033[2J\033[1;1H";
-				cout << "Error 404\n\nComputers not found\n\n";
-			}
 			list.printList();
 			cout << "Press any button to exit...";
 			_getch();
@@ -254,7 +270,6 @@ int main()
 					cin.clear();
 				}
 			}
-			cin.clear();
 			while (true)
 			{
 				cout << "\033[2J\033[1;1H";
@@ -270,13 +285,17 @@ int main()
 					cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
 				}
 			}
+			cin.clear();
+			cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
 			while (true)
 			{
 				cout << "\033[2J\033[1;1H";
 				cout << "Please enter the following data:\n";
 				cout << "Processor\n";
 				if (cin.getline(computer.proc, 25))
+				{
 					break;
+				}
 				else
 				{
 					cout << "\033[2J\033[1;1H" << "Incorrect data! Try again...";
@@ -284,7 +303,7 @@ int main()
 					cin.clear();
 				}
 			}
-			cin.clear();
+			// cin.clear();
 			while (true)
 			{
 				cout << "\033[2J\033[1;1H";
@@ -333,6 +352,8 @@ int main()
 				}
 			}
 			_writeStruct(computer, Option::Write);
+			list.Clear();
+			_readStruct(list);
 			break;
 		case 51:																	// EDIT
 			menu = NULL;
@@ -453,6 +474,8 @@ int main()
 				}
 			}
 			_writeStruct(computer, Option::Edit, menu - 1);
+			free(&list);
+			_readStruct(list);
 			menu = NULL;
 			cout << "Press any button to exit...";
 			_getch();
@@ -508,6 +531,8 @@ int main()
 				}
 			}
 			_delStruct(menu - 1);
+			free(&list);
+			_readStruct(list);
 			menu = NULL;
 			cout << "Press any button to exit...";
 			_getch();
