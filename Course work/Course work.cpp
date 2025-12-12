@@ -18,18 +18,55 @@ struct Computer
 	int memory;
 	int memory_count;
 	float price;
-	Computer* next;
+	Computer* prev, * next;
 };
 
 // Динамический список
 class List                 // список
 {
 private:
-	Computer* head; //"голова" связанного списка
+	Computer* head,* tail; //"голова" связанного списка
 public:
 	List() //конструктор класса без параметров
 	{
 		head = NULL; //первого элемента пока нет
+		tail = NULL;
+	}
+	Computer* push_front(Computer comp) {
+		Computer* item = (Computer*)(malloc(sizeof(Computer)));
+		strcpy(item->brand, comp.brand);     //задаем узлу данные		
+		strcpy(item->proc, comp.proc);
+		item->ram = comp.ram;
+		item->memory = comp.memory;
+		item->memory_count = comp.memory_count;
+		item->price = comp.price;
+		item->next = head;
+		if (head != NULL)
+			head->prev = item;
+		if (tail == NULL)
+			tail = item;
+		head = item;
+
+		return item;
+	}
+
+
+	Computer* push_back(Computer comp) {
+		Computer* item = (Computer*)(malloc(sizeof(Computer)));
+		strcpy(item->brand, comp.brand);     //задаем узлу данные		
+		strcpy(item->proc, comp.proc);
+		item->ram = comp.ram;
+		item->memory = comp.memory;
+		item->memory_count = comp.memory_count;
+		item->price = comp.price;
+		item->prev = tail;
+		if (tail != NULL)
+			tail->next = item;
+		if (head == NULL)
+			head = item;
+		tail = item;
+
+		return item;
 	}
 	//метод, добавляющий новый узел в список
 	void addNode(Computer comp)
