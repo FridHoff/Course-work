@@ -19,6 +19,16 @@ struct Computer
 	int memory_count;
 	float price;
 	Computer* prev, * next;
+	/*Computer* operator=(Computer* comp)
+	{
+		strcpy(comp->brand, this->brand);
+		strcpy(comp->proc, this->proc);
+		this->ram = comp->ram;
+		this->memory = comp->memory;
+		this->memory_count = comp->memory_count;
+		this->price = comp->price;
+		return this;
+	}*/
 	//Запускает процесс ввода нового ПК
 	void CompInput()
 	{
@@ -175,9 +185,9 @@ public:
 		count++;
 		return item;
 	}
-
 	//Удаление первого элемента списка
-	void pop_front() {
+	void pop_front() 
+	{
 		if (head == NULL) return;
 
 		Computer* ptr = head->next;
@@ -191,7 +201,8 @@ public:
 		count--;
 	}
 	//Удаление последнего элемента списка
-	void pop_back() {
+	void pop_back() 
+	{
 		if (tail == NULL) return;
 
 		Computer* ptr = tail->prev;
@@ -204,8 +215,32 @@ public:
 		tail = ptr;
 		count--;
 	}
+	//Удаление элемента по индексу
+	void erase(int index) 
+	{
+		Computer* ptr = getAt(index);
+		if (ptr == NULL)
+			return;
+
+		if (ptr->prev == NULL) {
+			pop_front();
+			return;
+		}
+
+		if (ptr->next == NULL) {
+			pop_back();
+			return;
+		}
+
+		Computer* left = ptr->prev;
+		Computer* right = ptr->next;
+		left->next = right;
+		right->prev = left;
+
+		free(ptr);
+	}
 	//Очистка списка
-	~List()
+	void ClearList()
 	{
 		while (head != NULL)
 			pop_front();
@@ -265,24 +300,35 @@ public:
 	}
 	//Получение элемента списка по индексу
 	Computer* getAt(int index) 
-	{
-		Computer* ptr = head;
+	{		
+		Computer* ptr;
 		int i = 0;
 		if (index > this->count / 2)
 		{
+			i = this->count - 1;
+			ptr = tail;
 		while (i != index) 
 		{
 			if (ptr == NULL)
 				return ptr;
-			ptr = ptr->next;
-			i++;
+			ptr = ptr->prev;
+			i--;
 		}
 		}
-
+		else
+		{
+			ptr = head;
+			while (i != index)
+			{
+				if (ptr == NULL)
+					return ptr;
+				ptr = ptr->next;
+				i++;
+			}
+		}
 		return ptr;
 	}
-
-
+	//Получение элемента списка по индексу через оператор []
 	Computer* operator [] (int index) {
 		return getAt(index);
 	}
@@ -347,39 +393,38 @@ void _writeStruct(Computer computer, Option option, int i = NULL, List list = Li
 		fclose(f); // закрываем файл		
 		break;
 	}
-
 }
-//Удаление структуры из файла
-void _delStruct(int number)
+
+int partition(List list, int first, int last)
 {
-	struct Computer* computer = (struct Computer*)malloc(sizeof(Computer));
-	FILE* file; // переменная для работы с файлом
-	long i = 0, fEnd;    // переменная для обозначения конца файла
-	//E:\\data.bin	
-	file = fopen("data.bin", "rb");
-	fseek(file, 0, SEEK_END); // перемещаем курсор в конец файла.
-	fEnd = ftell(file);					// функция выдаст конечное положнние курсора относительно начала файла в байтах.				
-	fclose(file); // закрываем файл
-	while (i < fEnd)
-	{
-		if (i == number * sizeof(Computer))
-		{
-			i += sizeof(Computer);
-			continue;
-		}
-		file = fopen("data.bin", "rb");
-		fseek(file, i, SEEK_SET); // перемещаемся от начала (SEEK_SET) файла на ... длинн структуры
-		fread(computer, sizeof(Computer), 1, file); // считываем из файла f ровно 1 структуру размера Computer			
-		// вывод на консоль загруженной структуры
-		fclose(file); // закрываем файл
-		_writeStruct(*computer, Option::Delete);
-		i += sizeof(Computer);
-	}
-	free(computer);
-	remove("data.bin");
-	rename("dataNew.bin", "data.bin");
-}
+	// Selecting last element as the pivot
+	float pivot = list[last]->price;
 
+	// Index of elemment just before the last element
+	// It is used for swapping
+	int i = (first - 1);
+
+	for (int j = first; j <= last - 1; j++) {
+
+		// If current element is smaller than or
+		// equal to pivot
+		if (list[j]->price <= pivot) {
+			i++;		
+			Computer* temp = list[i];
+			list[i]->prev=list[j]->prev;
+			list[i]->next = list[j]->next;
+			list[j]->prev = temp->prev;
+			list[j]->next= temp->next;	
+			swap(vec[i], vec[j]);
+		}
+	}
+
+	// Put pivot to its position
+	swap(vec[i + 1], vec[high]);
+
+	// Return the point of partition
+	return (i + 1);
+}
 int main()
 {
 	List list;
@@ -401,8 +446,7 @@ int main()
 			menu = _getch();
 			if (menu == 50)
 			{
-				menu = 54;
-				break;
+				exit(0);
 			}
 			else if (menu == 49)
 			{
@@ -411,8 +455,28 @@ int main()
 			}
 		}
 	}
-	while (menu != 54)
+	while (menu != 54 && menu != 27)
 	{
+		if (list.count == 0)
+		{
+			while (true)
+			{
+				cout << "\033[2J\033[1;1H";
+				cout << "Error 404\n\nComputers not found\n\n";
+				cout << "1.Add computer\n";
+				cout << "2.Exit\n";
+				menu = _getch();
+				if (menu == 50)
+				{
+					exit(0);
+				}
+				else if (menu == 49)
+				{
+					menu = 50;
+					break;
+				}
+			}
+		}
 		if (menu != 50)
 		{
 			cout << "\033[2J\033[1;1H"; // Console clear and start from top left of window
@@ -421,7 +485,7 @@ int main()
 			cout << "2.Add computer\n";
 			cout << "3.Edit computer\n";
 			cout << "4.Delete computer\n";
-			cout << "5.\n";
+			cout << "5.Delete all computers\n";
 			cout << "6. Exit\n";
 			menu = _getch();
 		}
@@ -437,7 +501,7 @@ int main()
 			menu = NULL;
 			computer.CompInput();
 			_writeStruct(computer, Option::Write);
-			list.~List();
+			list.ClearList();
 			_readStruct(list);
 			break;
 		case 51:																	// EDIT
@@ -458,7 +522,7 @@ int main()
 			}
 			computer.CompInput();
 			_writeStruct(computer, Option::Edit, menu - 1);
-			list.~List();
+			list.ClearList();
 			_readStruct(list);
 			menu = NULL;
 			cout << "Press any button to exit...";
@@ -470,8 +534,10 @@ int main()
 			{
 				list.Show();
 				cout << "Enter which computer you want to destroy:\n";
-				if (cin >> menu && menu <= list.count && menu > 0)
-					break;
+				if ((cin >> menu && menu <= list.count && menu > 0))
+				{
+					break;				
+				}
 				else
 				{
 					cout << "\033[2J\033[1;1H" << "Incorrect data! Try again...";
@@ -480,17 +546,41 @@ int main()
 					cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
 				}
 			}
-			_delStruct(menu - 1);
-			list.~List();
+			if (menu != 27)
+			{
+			computer = Computer();
+			list.erase(menu-1);
+			_writeStruct(computer, Option::Delete, menu - 1, list);
+			list.ClearList();
 			_readStruct(list);
 			menu = NULL;
+			cout << "\033[2J\033[1;1H"; // Console clear and start from top left of window
+			cout << "Delete was sucсessfull!\n\n";
 			cout << "Press any button to exit...";
 			_getch();
+			}
 			break;
 		case 53:
 			menu = NULL;
+			cout << "\033[2J\033[1;1H"; // Console clear and start from top left of window
+			cout << "Are you sure about this?\n\n";
+			cout << "1.Yes\n";
+			cout << "2.No\n\n";
+			if (_getch() == 49)
+			{
+				remove("data.bin");
+				cout << "\033[2J\033[1;1H"; // Console clear and start from top left of window
+				cout << "Computers was viped\n\n";
+				cout << "Press any button to exit...";
+				_getch();
+				list.ClearList();
+			}
 			break;
 		case 54:
+			exit(0);
+			break;
+		case 27:
+			exit(0);
 			break;
 		}
 	}
