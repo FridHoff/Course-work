@@ -138,11 +138,11 @@ struct Computer
 class List                 // список
 {
 public:
-	int count = 0;			
+	int count = 0;
 	Computer* head, * tail; //начало и конец списка
 public:
 	//конструктор класса без параметров
-	List() 
+	List()
 	{
 		head = NULL; //первого элемента пока нет
 		tail = NULL;
@@ -151,7 +151,7 @@ public:
 	Computer* push_front(Computer comp) {
 		Computer* item = (Computer*)(malloc(sizeof(Computer)));
 		item->prev = item->next = NULL;				//задаем узлу данные	
-		strcpy(item->brand, comp.brand);     	
+		strcpy(item->brand, comp.brand);
 		strcpy(item->proc, comp.proc);
 		item->ram = comp.ram;
 		item->memory = comp.memory;
@@ -186,7 +186,7 @@ public:
 		return item;
 	}
 	//Удаление первого элемента списка
-	void pop_front() 
+	void pop_front()
 	{
 		if (head == NULL) return;
 
@@ -201,7 +201,7 @@ public:
 		count--;
 	}
 	//Удаление последнего элемента списка
-	void pop_back() 
+	void pop_back()
 	{
 		if (tail == NULL) return;
 
@@ -216,7 +216,7 @@ public:
 		count--;
 	}
 	//Удаление элемента по индексу
-	void erase(int index) 
+	void erase(int index)
 	{
 		Computer* ptr = getAt(index);
 		if (ptr == NULL)
@@ -299,21 +299,21 @@ public:
 		}
 	}
 	//Получение элемента списка по индексу
-	Computer* getAt(int index) 
-	{		
+	Computer* getAt(int index)
+	{
 		Computer* ptr;
 		int i = 0;
 		if (index > this->count / 2)
 		{
 			i = this->count - 1;
 			ptr = tail;
-		while (i != index) 
-		{
-			if (ptr == NULL)
-				return ptr;
-			ptr = ptr->prev;
-			i--;
-		}
+			while (i != index)
+			{
+				if (ptr == NULL)
+					return ptr;
+				ptr = ptr->prev;
+				i--;
+			}
 		}
 		else
 		{
@@ -332,9 +332,43 @@ public:
 	Computer* operator [] (int index) {
 		return getAt(index);
 	}
-	void swap(Computer* i,j)
-	{
+	void swap(Computer* first, Computer* second)
+	{		
+		/*if (first->prev == NULL)
+			this->head = second;
+		if (second->prev == NULL)
+			this->head = first;
+		if (first->next == NULL)
+			this->tail = second;
+		if (second->next == NULL)
+			this->tail = first;*/
+		Computer* temp = (Computer*)(malloc(sizeof(Computer)));
+		strcpy(temp->brand, first->brand);
+		strcpy(temp->proc, first->proc);
+		temp->ram = first->ram;
+		temp->memory = first->memory;
+		temp->memory_count = first->memory_count;
+		temp->price = first->price;
+		
+		strcpy(first->brand, second->brand);
+		strcpy(first->proc, second->proc);
+		first->ram = second->ram;
+		first->memory = second->memory;
+		first->memory_count = second->memory_count;
+		first->price = second->price;
 
+		strcpy(second->brand, temp->brand);
+		strcpy(second->proc, temp->proc);
+		second->ram = temp->ram;
+		second->memory = temp->memory;
+		second->memory_count = temp->memory_count;
+		second->price = temp->price;
+
+		free(temp);
+		/*first->next = second->next;
+		first->prev = second->prev;
+		second->next = temp->next;
+		second->prev = temp->prev;*/
 	}
 };
 
@@ -399,43 +433,66 @@ void _writeStruct(Computer computer, Option option, int i = NULL, List list = Li
 	}
 }
 
+	
 int partition(List list, int first, int last)
-{
-	// Selecting last element as the pivot
-	float pivot = list[last]->price;
+{	
+	// select the rightmost element as pivot
+	Computer* pivot = list[last];
 
-	// Index of elemment just before the last element
-	// It is used for swapping
+	// pointer for greater element
 	int i = (first - 1);
 
-	for (int j = first; j <= last - 1; j++) {
+	// traverse each element of the array
+	// compare them with the pivot
+	for (int j = first; j < last; j++) 
+	{
+		if (list[j]->price <= pivot->price) 
+		{
 
-		// If current element is smaller than or
-		// equal to pivot
-		if (list[j]->price <= pivot) {
-			i++;					
-			swap(vec[i], vec[j]);
-			/*Computer* temp = list[i];
-			list[i]->prev=list[j]->prev;
-			list[i]->next = list[j]->next;
-			list[j]->prev = temp->prev;
-			list[j]->next= temp->next;				*/
+			// if element smaller than pivot is found
+			// swap it with the greater element pointed by i
+			i++;
+
+			// swap element at i with element at j
+			list.swap(list[i], list[j]);
 		}
 	}
 
-	// Put pivot to its position
-	swap(vec[i + 1], vec[high]);
+	// swap pivot with the greater element at i
+	list.swap(list[i + 1], list[last]);
 
-	// Return the point of partition
+	// return the partition point
 	return (i + 1);
+	//// Selecting last element as the pivot
+	//float pivot = list[last]->price;
+
+	//// Index of elemment just before the last element
+	//// It is used for swapping
+	//int i = (first - 1);
+
+	//for (int j = first; j <= last - 1; j++) {
+
+	//	// If current element is smaller than or
+	//	// equal to pivot
+	//	if (list[j]->price <= pivot) {
+	//		i++;
+	//		list.swap(list[i], list[j]);			
+	//	}
+	//}
+
+	//// Put pivot to its position
+	//list.swap(list[i + 1], list[last]);
+
+	//// Return the point of partition
+	//return (i + 1);
 }
 
-void quickSort(List& list, int first, int last) 
+void quickSort(List& list, int first, int last)
 {
 	// Base case: This part will be executed till the starting
 	// index low is lesser than the ending index high
-	if (first < last) {
-
+	if (first < last) 
+	{
 		// pi is Partitioning Index, arr[p] is now at
 		// right place
 		int pi = partition(list, first, last);
@@ -443,7 +500,7 @@ void quickSort(List& list, int first, int last)
 		// Separately sort elements before and after the
 		// Partition Index pi
 		quickSort(list, first, pi - 1);
-		quickSort(list, pi + 1, last);
+		quickSort(list, pi+1, last);
 	}
 }
 
@@ -515,7 +572,7 @@ int main()
 		{
 		case 49:																	// SHOW LIST
 			menu = NULL;
-			quickSort(list, 0, list.count-1);
+			quickSort(list, 0, list.count - 1);
 			list.Show();
 			cout << "Press any button to exit...";
 			_getch();
@@ -559,7 +616,7 @@ int main()
 				cout << "Enter which computer you want to destroy:\n";
 				if ((cin >> menu && menu <= list.count && menu > 0))
 				{
-					break;				
+					break;
 				}
 				else
 				{
@@ -571,16 +628,16 @@ int main()
 			}
 			if (menu != 27)
 			{
-			computer = Computer();
-			list.erase(menu-1);
-			_writeStruct(computer, Option::Delete, menu - 1, list);
-			list.ClearList();
-			_readStruct(list);
-			menu = NULL;
-			cout << "\033[2J\033[1;1H"; // Console clear and start from top left of window
-			cout << "Delete was sucсessfull!\n\n";
-			cout << "Press any button to exit...";
-			_getch();
+				computer = Computer();
+				list.erase(menu - 1);
+				_writeStruct(computer, Option::Delete, menu - 1, list);
+				list.ClearList();
+				_readStruct(list);
+				menu = NULL;
+				cout << "\033[2J\033[1;1H"; // Console clear and start from top left of window
+				cout << "Delete was sucсessfull!\n\n";
+				cout << "Press any button to exit...";
+				_getch();
 			}
 			break;
 		case 53:
