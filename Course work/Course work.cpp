@@ -332,6 +332,10 @@ public:
 	Computer* operator [] (int index) {
 		return getAt(index);
 	}
+	void swap(Computer* i,j)
+	{
+
+	}
 };
 
 //Перечисление для функции записи
@@ -409,13 +413,13 @@ int partition(List list, int first, int last)
 		// If current element is smaller than or
 		// equal to pivot
 		if (list[j]->price <= pivot) {
-			i++;		
-			Computer* temp = list[i];
+			i++;					
+			swap(vec[i], vec[j]);
+			/*Computer* temp = list[i];
 			list[i]->prev=list[j]->prev;
 			list[i]->next = list[j]->next;
 			list[j]->prev = temp->prev;
-			list[j]->next= temp->next;	
-			swap(vec[i], vec[j]);
+			list[j]->next= temp->next;				*/
 		}
 	}
 
@@ -425,6 +429,24 @@ int partition(List list, int first, int last)
 	// Return the point of partition
 	return (i + 1);
 }
+
+void quickSort(List& list, int first, int last) 
+{
+	// Base case: This part will be executed till the starting
+	// index low is lesser than the ending index high
+	if (first < last) {
+
+		// pi is Partitioning Index, arr[p] is now at
+		// right place
+		int pi = partition(list, first, last);
+
+		// Separately sort elements before and after the
+		// Partition Index pi
+		quickSort(list, first, pi - 1);
+		quickSort(list, pi + 1, last);
+	}
+}
+
 int main()
 {
 	List list;
@@ -493,6 +515,7 @@ int main()
 		{
 		case 49:																	// SHOW LIST
 			menu = NULL;
+			quickSort(list, 0, list.count-1);
 			list.Show();
 			cout << "Press any button to exit...";
 			_getch();
