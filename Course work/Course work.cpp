@@ -19,16 +19,6 @@ struct Computer
 	int memory_count;
 	float price;
 	Computer* prev, * next;
-	/*Computer* operator=(Computer* comp)
-	{
-		strcpy(comp->brand, this->brand);
-		strcpy(comp->proc, this->proc);
-		this->ram = comp->ram;
-		this->memory = comp->memory;
-		this->memory_count = comp->memory_count;
-		this->price = comp->price;
-		return this;
-	}*/
 	//Запускает процесс ввода нового ПК
 	void CompInput()
 	{
@@ -333,7 +323,7 @@ public:
 		return getAt(index);
 	}
 	void swap(Computer* first, Computer* second)
-	{		
+	{
 		/*if (first->prev == NULL)
 			this->head = second;
 		if (second->prev == NULL)
@@ -349,7 +339,7 @@ public:
 		temp->memory = first->memory;
 		temp->memory_count = first->memory_count;
 		temp->price = first->price;
-		
+
 		strcpy(first->brand, second->brand);
 		strcpy(first->proc, second->proc);
 		first->ram = second->ram;
@@ -365,10 +355,6 @@ public:
 		second->price = temp->price;
 
 		free(temp);
-		/*first->next = second->next;
-		first->prev = second->prev;
-		second->next = temp->next;
-		second->prev = temp->prev;*/
 	}
 };
 
@@ -433,9 +419,33 @@ void _writeStruct(Computer computer, Option option, int i = NULL, List list = Li
 	}
 }
 
-	
-int partition(List list, int first, int last)
-{	
+bool AscByBrand(Computer* a, Computer* b)
+{
+	return a->brand <= b->brand;
+}
+bool AscByProc(Computer* a, Computer* b)
+{
+	return a->proc <= b->proc;
+}
+bool AscByRam(Computer* a, Computer* b)
+{
+	return a->ram <= b->ram;
+}
+bool AscByMemory(Computer* a, Computer* b)
+{
+	return a->memory <= b->memory;
+}
+bool AscByMemory_count(Computer* a, Computer* b)
+{
+	return a->memory_count <= b->memory_count;
+}
+bool AscByPrice(Computer* a, Computer* b)
+{
+	return a->price <= b->price;
+}
+//Функция сортировки элементов меньше обозначенного
+int partition(List list, int first, int last, bool(*func)(Computer*, Computer*))
+{
 	// select the rightmost element as pivot
 	Computer* pivot = list[last];
 
@@ -444,9 +454,9 @@ int partition(List list, int first, int last)
 
 	// traverse each element of the array
 	// compare them with the pivot
-	for (int j = first; j < last; j++) 
+	for (int j = first; j < last; j++)
 	{
-		if (list[j]->price <= pivot->price) 
+		if (func(list[j], pivot))
 		{
 
 			// if element smaller than pivot is found
@@ -463,44 +473,22 @@ int partition(List list, int first, int last)
 
 	// return the partition point
 	return (i + 1);
-	//// Selecting last element as the pivot
-	//float pivot = list[last]->price;
-
-	//// Index of elemment just before the last element
-	//// It is used for swapping
-	//int i = (first - 1);
-
-	//for (int j = first; j <= last - 1; j++) {
-
-	//	// If current element is smaller than or
-	//	// equal to pivot
-	//	if (list[j]->price <= pivot) {
-	//		i++;
-	//		list.swap(list[i], list[j]);			
-	//	}
-	//}
-
-	//// Put pivot to its position
-	//list.swap(list[i + 1], list[last]);
-
-	//// Return the point of partition
-	//return (i + 1);
 }
 
-void quickSort(List& list, int first, int last)
+void quickSort(List& list, int first, int last, bool(*func)(Computer*, Computer*))
 {
 	// Base case: This part will be executed till the starting
 	// index low is lesser than the ending index high
-	if (first < last) 
+	if (first < last)
 	{
 		// pi is Partitioning Index, arr[p] is now at
 		// right place
-		int pi = partition(list, first, last);
+		int pi = partition(list, first, last, func);
 
 		// Separately sort elements before and after the
 		// Partition Index pi
-		quickSort(list, first, pi - 1);
-		quickSort(list, pi+1, last);
+		quickSort(list, first, pi - 1, func);
+		quickSort(list, pi + 1, last, func);
 	}
 }
 
@@ -510,6 +498,7 @@ int main()
 	int menu, i;
 	menu = NULL;
 	Computer computer;
+	// Попытка считать данные с файла
 	try
 	{
 		_readStruct(list);
@@ -534,7 +523,8 @@ int main()
 			}
 		}
 	}
-	while (menu != 54 && menu != 27)
+	// Цикл для меню
+	while (menu != 27)
 	{
 		if (list.count == 0)
 		{
@@ -565,17 +555,83 @@ int main()
 			cout << "3.Edit computer\n";
 			cout << "4.Delete computer\n";
 			cout << "5.Delete all computers\n";
-			cout << "6. Exit\n";
+			cout << ".Check price for all computers\n";
 			menu = _getch();
 		}
 		switch (menu)
 		{
-		case 49:																	// SHOW LIST
-			menu = NULL;
-			quickSort(list, 0, list.count - 1);
-			list.Show();
-			cout << "Press any button to exit...";
-			_getch();
+		case 49:																	// SHOW LIST			
+				while (menu != 2)
+				{
+				menu = NULL;
+				cout << "\033[2J\033[1;1H"; // Console clear and start from top left of window
+				list.Show();
+				cout << '\n';
+				cout << "Choose option!\n\n";
+				cout << "1.Search\n";
+				cout << "2.Sort\n";
+				cout << "3.Filter\n";
+					switch (menu = _getch())
+					{
+					case 49:
+						menu = NULL;
+						break;
+					case 50:												// SORT
+						menu = NULL;
+						while (menu != 1)
+						{
+							list.Show();
+							cout << '\n';
+							cout << "Sort by ...\n\n";
+							cout << "1.Manufacturer\n";
+							cout << "2.Processor\n";
+							cout << "3.RAM\n";
+							cout << "4.Memory\n";
+							cout << "5.Memory count\n";
+							cout << "6.Price\n";
+							switch (menu = _getch())
+							{
+							case 49:
+								menu = NULL;
+								quickSort(list, 0, list.count - 1, AscByBrand);
+								break;
+							case 50:
+								menu = NULL;
+								quickSort(list, 0, list.count - 1, AscByProc);
+								break;
+							case 51:
+								menu = NULL;
+								quickSort(list, 0, list.count - 1, AscByRam);
+								break;
+							case 52:
+								menu = NULL;
+								quickSort(list, 0, list.count - 1, AscByMemory);
+								break;
+							case 53:
+								menu = NULL;
+								quickSort(list, 0, list.count - 1, AscByMemory_count);
+								break;
+							case 54:
+								menu = NULL;
+								quickSort(list, 0, list.count - 1, AscByPrice);
+								break;
+							case 27:
+								menu = 1;
+								break;
+							}
+						}						
+						break;
+					case 51:
+
+						break;
+					case 52:
+
+						break;
+					case 27:
+						menu = 2;
+						break;
+					}
+				}							
 			break;
 		case 50:																	// ADD
 			menu = NULL;
@@ -655,9 +711,6 @@ int main()
 				_getch();
 				list.ClearList();
 			}
-			break;
-		case 54:
-			exit(0);
 			break;
 		case 27:
 			exit(0);
