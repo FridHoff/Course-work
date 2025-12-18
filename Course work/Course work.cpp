@@ -237,7 +237,7 @@ public:
 		count = 0;
 	}
 	//Вывод списка на экран	
-	void Show()
+	void Show(int flag=5)
 	{
 		int i = 1;
 		cout << "\033[2J\033[1;1H";
@@ -246,7 +246,9 @@ public:
 		cout << "N";
 		cout.width(20);
 		cout.fill(' ');
-		cout << "Manufacturer";
+		if (flag=0)
+		cout << "Manufacturer ­­↓";
+		else if ()
 		cout.width(25);
 		cout.fill(' ');
 		cout << "Processor";
@@ -857,7 +859,7 @@ int main()
 				remove("data.bin");
 				cout << "\033[2J\033[1;1H"; // Console clear and start from top left of window
 				system("color 0C");
-				cout << "All computers was viped\n\n";
+				cout << "All computers was deleted\n\n";
 				cout << "Press any button to exit...";
 				_getch();
 				system("color 0F");
