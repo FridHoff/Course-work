@@ -415,7 +415,6 @@ void _writeStruct(List list)
 	//switch (option)
 	//{
 	//case Option::Write:
-
 	//	//E:\\data.bin
 	//	f = fopen("data.bin", "ab+"); // открываем бинарный файл для записи и чтения в режиме добавления, то есть, если файла нет, то он создастся, а если файл есть, 
 	//	fseek(f, 0, SEEK_END);// то содержимое файла не будет уничтожено, из файла можно будет читать и в файл можно будет записывать				
@@ -441,14 +440,20 @@ void _writeStruct(List list)
 	//	break;
 	//}
 }
-// Сравнение конкретных полей структуры для сортровки по возрастанию
+// Сравнение определённый полей структуры для сортровки по возрастанию
 bool AscByBrand(Computer* a, Computer* b)
 {
-	return a->brand <= b->brand;
+	if (strcmp(a->brand, b->brand) <= 0)
+		return true;
+	else
+		return false;
 }
 bool AscByProc(Computer* a, Computer* b)
 {
-	return a->proc <= b->proc;
+	if (strcmp(a->proc, b->proc) <= 0)
+		return true;
+	else
+		return false;
 }
 bool AscByRam(Computer* a, Computer* b)
 {
@@ -466,14 +471,20 @@ bool AscByPrice(Computer* a, Computer* b)
 {
 	return a->price <= b->price;
 }
-// Сравнение конкретных полей структуры для сортровки по убыванию
+// Сравнение определённых полей структуры для сортровки по убыванию
 bool DescByBrand(Computer* a, Computer* b)
 {
-	return a->brand >= b->brand;
+	if (strcmp(a->brand, b->brand) >= 0)
+		return true;
+	else
+		return false;
 }
 bool DescByProc(Computer* a, Computer* b)
 {
-	return a->proc >= b->proc;
+	if (strcmp(a->proc, b->proc) >= 0)
+		return true;
+	else
+		return false;
 }
 bool DescByRam(Computer* a, Computer* b)
 {
@@ -491,7 +502,7 @@ bool DescByPrice(Computer* a, Computer* b)
 {
 	return a->price >= b->price;
 }
-//Функция сортировки элементов меньше обозначенного
+//Функция сортировки элементов до обозначенного
 int partition(List list, int first, int last, bool(*func)(Computer*, Computer*))
 {
 	// select the rightmost element as pivot
