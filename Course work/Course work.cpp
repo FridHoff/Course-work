@@ -375,6 +375,21 @@ public:
 		free(temp);
 	}
 };
+//Поиск по текстовым полям
+	List search(List &list, string s)
+	{
+		List result;
+		int i = 0;
+		for (Computer* ptr = list.head; ptr != NULL; ptr = ptr->next)
+		{
+			if (((((string)(ptr->brand))).find(s) != string::npos) || ((string)(ptr->proc)).find(s) != string::npos)
+			{				
+				result.push_back(*list.getAt(i));				
+			}
+			i++;
+		}
+		return result;
+	}
 
 //Перечисление для функции записи
 //enum class Option { Write, Delete, Edit };
@@ -551,6 +566,8 @@ void quickSort(List& list, int first, int last, bool(*func)(Computer*, Computer*
 	}
 }
 
+
+
 int main()
 {
 	List list;
@@ -610,9 +627,25 @@ int main()
 				cout << "3.Filter\n";
 				switch (menu = _getch())
 				{
-				case 49:
+				case 49:												// SEARCH
+				{
 					menu = NULL;
+					string s;
+					cout << "\033[2J\033[1;1H"; // Console clear and start from top left of window					
+					cout << "Choose option!\n\n";
+					cout << "Search for:\n";
+					cin >> s;
+					List result = search(list, s);
+					if (result.count != 0)
+						result.Show();
+					else
+					{
+						cout << "\033[2J\033[1;1H";
+						cout << "Computers not found\n\n";
+					}
+					_getch();
 					break;
+				}
 				case 50:												// SORT
 				{
 					menu = NULL;
