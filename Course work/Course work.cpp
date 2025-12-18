@@ -401,6 +401,7 @@ void _readStruct(List& list)
 		free(computer);
 	}
 }
+//Чтение структуры из текстового файла
 //Запись структуры в файл
 void _writeStruct(List list)
 {
@@ -650,14 +651,15 @@ int main()
 					menu = 2;
 					break;
 				case 50:								
-					menu = NULL;
-					computer.CompInput();
-					while (menu != 27)
+					menu = 1;										
+					while (menu <=9)
 					{
-						list.push_back(computer);						
 						computer.CompInput();
+						list.push_back(computer);												
+						menu++;
+					}					
+					while (menu != 27)
 						menu = _getch();
-					}
 					menu = 2;
 					break;
 				case 27:
