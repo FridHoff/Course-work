@@ -12,7 +12,7 @@ using namespace std;
 
 struct Computer
 {
-	char brand[15];
+	char brand[20];
 	char proc[25];
 	int ram;
 	int memory;
@@ -244,7 +244,7 @@ public:
 		cout.width(4);
 		cout.fill(' ');
 		cout << "N";
-		cout.width(15);
+		cout.width(20);
 		cout.fill(' ');
 		cout << "Manufacturer";
 		cout.width(25);
@@ -256,7 +256,7 @@ public:
 		cout.width(15);
 		cout.fill(' ');
 		cout << "Memory";
-		cout.width(20);
+		cout.width(15);
 		cout.fill(' ');
 		cout << "Memory count";
 		cout.width(15);
@@ -267,7 +267,7 @@ public:
 			cout.width(4);
 			cout.fill(' ');
 			cout << i << ')';
-			cout.width(15);
+			cout.width(20);
 			cout.fill(' ');
 			cout << ptr->brand;
 			cout.width(25);
@@ -279,12 +279,12 @@ public:
 			cout.width(15);
 			cout.fill(' ');
 			cout << ptr->memory;
-			cout.width(20);
+			cout.width(15);
 			cout.fill(' ');
 			cout << ptr->memory_count;
 			cout.width(15);
 			cout.fill(' ');
-			cout << ptr->price << "\n";
+			cout<<fixed << setprecision(2) << ptr->price << "\n";
 			i++;
 		}
 	}
@@ -321,6 +321,24 @@ public:
 	//Получение элемента списка по индексу через оператор []
 	Computer* operator [] (int index) {
 		return getAt(index);
+	}
+	Computer* insert(int index, Computer data)
+	{
+		Computer* right = getAt(index);
+		if (right == NULL)
+			return push_back(data);
+
+		Computer* left = right->prev;
+		if (left == NULL)
+			return push_front(data);
+
+		Computer* ptr = new Computer(data);
+
+		ptr->prev = left;
+		ptr->next = right;
+		left->next = ptr;
+		right->prev = ptr;
+		return ptr;
 	}
 	void swap(Computer* first, Computer* second)
 	{
@@ -359,7 +377,7 @@ public:
 };
 
 //Перечисление для функции записи
-enum class Option { Write, Delete, Edit };
+//enum class Option { Write, Delete, Edit };
 //Чтение структуры из файла
 void _readStruct(List& list)
 {
@@ -382,41 +400,45 @@ void _readStruct(List& list)
 		fclose(file); // закрываем файл
 		free(computer);
 	}
-	else
-		throw 404;
 }
 //Запись структуры в файл
-void _writeStruct(Computer computer, Option option, int i = NULL, List list = List())
+void _writeStruct(List list)
 {
 	FILE* f; // переменная для работы с файлом
-	switch (option)
+	f = fopen("data.bin", "wb");
+	for (Computer* ptr = list.head; ptr != NULL; ptr = ptr->next)
 	{
-	case Option::Write:
-
-		//E:\\data.bin
-		f = fopen("data.bin", "ab+"); // открываем бинарный файл для записи и чтения в режиме добавления, то есть, если файла нет, то он создастся, а если файл есть, 
-		fseek(f, 0, SEEK_END);// то содержимое файла не будет уничтожено, из файла можно будет читать и в файл можно будет записывать				
-		fwrite(&computer, sizeof(Computer), 1, f); // записываем в файл f р		
-		fclose(f); // закрываем файл
-		cout << "\033[2J\033[1;1H";
-		cout << "\nNew computer sucсessfully added!\n\nPress any key to continue...";
-		_getch(); // ожидаем нажатия пользователем клавиши
-		break;
-	case Option::Delete:
-		f = fopen("data.bin", "wb");
-		for (Computer* ptr = list.head; ptr != NULL; ptr = ptr->next)
-		{
-			fwrite(ptr, sizeof(Computer), 1, f); // записываем в файл f р		
-		}
-		fclose(f); // закрываем файл		
-		break;
-	case Option::Edit:
-		f = fopen("data.bin", "r+");  // r+ для изменения файла
-		fseek(f, i * sizeof(Computer), SEEK_SET);
-		fwrite(&computer, sizeof(Computer), 1, f); // записываем в файл f р		
-		fclose(f); // закрываем файл		
-		break;
+		fwrite(ptr, sizeof(Computer), 1, f); // записываем в файл f р		
 	}
+	fclose(f); // закрываем файл					
+	//switch (option)
+	//{
+	//case Option::Write:
+
+	//	//E:\\data.bin
+	//	f = fopen("data.bin", "ab+"); // открываем бинарный файл для записи и чтения в режиме добавления, то есть, если файла нет, то он создастся, а если файл есть, 
+	//	fseek(f, 0, SEEK_END);// то содержимое файла не будет уничтожено, из файла можно будет читать и в файл можно будет записывать				
+	//	fwrite(&computer, sizeof(Computer), 1, f); // записываем в файл f р		
+	//	fclose(f); // закрываем файл
+	//	cout << "\033[2J\033[1;1H";
+	//	cout << "\nNew computer sucсessfully added!\n\nPress any key to continue...";
+	//	_getch(); // ожидаем нажатия пользователем клавиши
+	//	break;
+	//case Option::Delete:
+	//	f = fopen("data.bin", "wb");
+	//	for (Computer* ptr = list.head; ptr != NULL; ptr = ptr->next)
+	//	{
+	//		fwrite(ptr, sizeof(Computer), 1, f); // записываем в файл f р		
+	//	}
+	//	fclose(f); // закрываем файл		
+	//	break;
+	//case Option::Edit:
+	//	f = fopen("data.bin", "r+");  // r+ для изменения файла
+	//	fseek(f, i * sizeof(Computer), SEEK_SET);
+	//	fwrite(&computer, sizeof(Computer), 1, f); // записываем в файл f р		
+	//	fclose(f); // закрываем файл		
+	//	break;
+	//}
 }
 
 bool AscByBrand(Computer* a, Computer* b)
@@ -499,30 +521,7 @@ int main()
 	menu = NULL;
 	Computer computer;
 	// Попытка считать данные с файла
-	try
-	{
-		_readStruct(list);
-	}
-	catch (int code)
-	{
-		while (true)
-		{
-			cout << "\033[2J\033[1;1H";
-			cout << "Error 404\n\nComputers not found\n\n";
-			cout << "1.Add computer\n";
-			cout << "2.Exit\n";
-			menu = _getch();
-			if (menu == 50)
-			{
-				exit(0);
-			}
-			else if (menu == 49)
-			{
-				menu = 50;
-				break;
-			}
-		}
-	}
+	_readStruct(list);
 	// Цикл для меню
 	while (menu != 27)
 	{
@@ -561,8 +560,8 @@ int main()
 		switch (menu)
 		{
 		case 49:																	// SHOW LIST			
-				while (menu != 2)
-				{
+			while (menu != 2)
+			{
 				menu = NULL;
 				cout << "\033[2J\033[1;1H"; // Console clear and start from top left of window
 				list.Show();
@@ -571,74 +570,101 @@ int main()
 				cout << "1.Search\n";
 				cout << "2.Sort\n";
 				cout << "3.Filter\n";
-					switch (menu = _getch())
+				switch (menu = _getch())
+				{
+				case 49:
+					menu = NULL;
+					break;
+				case 50:												// SORT
+					menu = NULL;
+					while (menu != 1)
 					{
-					case 49:
-						menu = NULL;
-						break;
-					case 50:												// SORT
-						menu = NULL;
-						while (menu != 1)
+						list.Show();
+						cout << '\n';
+						cout << "Sort by ...\n\n";
+						cout << "1.Manufacturer\n";
+						cout << "2.Processor\n";
+						cout << "3.RAM\n";
+						cout << "4.Memory\n";
+						cout << "5.Memory count\n";
+						cout << "6.Price\n";
+						switch (menu = _getch())
 						{
-							list.Show();
-							cout << '\n';
-							cout << "Sort by ...\n\n";
-							cout << "1.Manufacturer\n";
-							cout << "2.Processor\n";
-							cout << "3.RAM\n";
-							cout << "4.Memory\n";
-							cout << "5.Memory count\n";
-							cout << "6.Price\n";
-							switch (menu = _getch())
-							{
-							case 49:
-								menu = NULL;
-								quickSort(list, 0, list.count - 1, AscByBrand);
-								break;
-							case 50:
-								menu = NULL;
-								quickSort(list, 0, list.count - 1, AscByProc);
-								break;
-							case 51:
-								menu = NULL;
-								quickSort(list, 0, list.count - 1, AscByRam);
-								break;
-							case 52:
-								menu = NULL;
-								quickSort(list, 0, list.count - 1, AscByMemory);
-								break;
-							case 53:
-								menu = NULL;
-								quickSort(list, 0, list.count - 1, AscByMemory_count);
-								break;
-							case 54:
-								menu = NULL;
-								quickSort(list, 0, list.count - 1, AscByPrice);
-								break;
-							case 27:
-								menu = 1;
-								break;
-							}
-						}						
-						break;
-					case 51:
-
-						break;
-					case 52:
-
-						break;
-					case 27:
-						menu = 2;
-						break;
+						case 49:
+							menu = NULL;
+							quickSort(list, 0, list.count - 1, AscByBrand);
+							break;
+						case 50:
+							menu = NULL;
+							quickSort(list, 0, list.count - 1, AscByProc);
+							break;
+						case 51:
+							menu = NULL;
+							quickSort(list, 0, list.count - 1, AscByRam);
+							break;
+						case 52:
+							menu = NULL;
+							quickSort(list, 0, list.count - 1, AscByMemory);
+							break;
+						case 53:
+							menu = NULL;
+							quickSort(list, 0, list.count - 1, AscByMemory_count);
+							break;
+						case 54:
+							menu = NULL;
+							quickSort(list, 0, list.count - 1, AscByPrice);
+							break;
+						case 27:
+							menu = 1;
+							break;
+						}
 					}
-				}							
+					break;
+				case 51:
+
+					break;
+				case 52:
+
+					break;
+				case 27:
+					menu = 2;
+					break;
+				}
+			}
 			break;
 		case 50:																	// ADD
-			menu = NULL;
-			computer.CompInput();
-			_writeStruct(computer, Option::Write);
-			list.ClearList();
-			_readStruct(list);
+			menu = NULL;			
+			while (menu != 2)
+			{
+				menu = NULL;
+				cout << "\033[2J\033[1;1H"; // Console clear and start from top left of window
+				cout << '\n';
+				cout << "Choose option!\n\n";
+				cout << "1.One\n";
+				cout << "2.Many\n";
+				switch (menu = _getch())
+				{
+				case 49:					
+					computer.CompInput();
+					list.push_back(computer);
+					menu = 2;
+					break;
+				case 50:								
+					menu = NULL;
+					computer.CompInput();
+					while (menu != 27)
+					{
+						list.push_back(computer);						
+						computer.CompInput();
+						menu = _getch();
+					}
+					menu = 2;
+					break;
+				case 27:
+					menu = 2;
+					break;
+				}
+			}
 			break;
 		case 51:																	// EDIT
 			menu = NULL;
@@ -657,9 +683,8 @@ int main()
 				}
 			}
 			computer.CompInput();
-			_writeStruct(computer, Option::Edit, menu - 1);
-			list.ClearList();
-			_readStruct(list);
+			list.erase(menu - 1);
+			list.insert(menu - 1, computer);
 			menu = NULL;
 			cout << "Press any button to exit...";
 			_getch();
@@ -684,14 +709,9 @@ int main()
 			}
 			if (menu != 27)
 			{
-				computer = Computer();
 				list.erase(menu - 1);
-				_writeStruct(computer, Option::Delete, menu - 1, list);
-				list.ClearList();
-				_readStruct(list);
 				menu = NULL;
 				cout << "\033[2J\033[1;1H"; // Console clear and start from top left of window
-				cout << "Delete was sucсessfull!\n\n";
 				cout << "Press any button to exit...";
 				_getch();
 			}
@@ -704,15 +724,17 @@ int main()
 			cout << "2.No\n\n";
 			if (_getch() == 49)
 			{
+				list.ClearList();
 				remove("data.bin");
 				cout << "\033[2J\033[1;1H"; // Console clear and start from top left of window
 				cout << "Computers was viped\n\n";
 				cout << "Press any button to exit...";
 				_getch();
-				list.ClearList();
 			}
 			break;
 		case 27:
+			_writeStruct(list);
+			list.ClearList();
 			exit(0);
 			break;
 		}
