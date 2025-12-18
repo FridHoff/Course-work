@@ -441,7 +441,7 @@ void _writeStruct(List list)
 	//	break;
 	//}
 }
-
+// Сравнение конкретных полей структуры для сортровки по возрастанию
 bool AscByBrand(Computer* a, Computer* b)
 {
 	return a->brand <= b->brand;
@@ -465,6 +465,31 @@ bool AscByMemory_count(Computer* a, Computer* b)
 bool AscByPrice(Computer* a, Computer* b)
 {
 	return a->price <= b->price;
+}
+// Сравнение конкретных полей структуры для сортровки по убыванию
+bool DescByBrand(Computer* a, Computer* b)
+{
+	return a->brand >= b->brand;
+}
+bool DescByProc(Computer* a, Computer* b)
+{
+	return a->proc >= b->proc;
+}
+bool DescByRam(Computer* a, Computer* b)
+{
+	return a->ram >= b->ram;
+}
+bool DescByMemory(Computer* a, Computer* b)
+{
+	return a->memory >= b->memory;
+}
+bool DescByMemory_count(Computer* a, Computer* b)
+{
+	return a->memory_count >= b->memory_count;
+}
+bool DescByPrice(Computer* a, Computer* b)
+{
+	return a->price >= b->price;
 }
 //Функция сортировки элементов меньше обозначенного
 int partition(List list, int first, int last, bool(*func)(Computer*, Computer*))
@@ -555,7 +580,8 @@ int main()
 			cout << "3.Edit computer\n";
 			cout << "4.Delete computer\n";
 			cout << "5.Delete all computers\n";
-			cout << ".Check price for all computers\n";
+			cout << "6.Check price for all computers\n\n";
+			cout << "Press Esc to save and exit\n";
 			menu = _getch();
 		}
 		switch (menu)
@@ -577,7 +603,9 @@ int main()
 					menu = NULL;
 					break;
 				case 50:												// SORT
+				{
 					menu = NULL;
+					int flag = 0;
 					while (menu != 1)
 					{
 						list.Show();
@@ -593,33 +621,88 @@ int main()
 						{
 						case 49:
 							menu = NULL;
-							quickSort(list, 0, list.count - 1, AscByBrand);
+							if (flag == 0)
+							{
+								quickSort(list, 0, list.count - 1, AscByBrand);
+								flag++;
+							}
+							else
+							{
+								quickSort(list, 0, list.count - 1, DescByBrand);
+								flag = 0;
+							}
 							break;
 						case 50:
 							menu = NULL;
-							quickSort(list, 0, list.count - 1, AscByProc);
+							if (flag == 0)
+							{
+								quickSort(list, 0, list.count - 1, AscByProc);
+								flag++;
+							}
+							else
+							{
+								quickSort(list, 0, list.count - 1, DescByProc);
+								flag = 0;
+							}
 							break;
 						case 51:
 							menu = NULL;
-							quickSort(list, 0, list.count - 1, AscByRam);
+							if (flag == 0)
+							{
+								quickSort(list, 0, list.count - 1, AscByRam);
+								flag++;
+							}
+							else
+							{
+								quickSort(list, 0, list.count - 1, DescByRam);
+								flag = 0;
+							}
 							break;
 						case 52:
 							menu = NULL;
-							quickSort(list, 0, list.count - 1, AscByMemory);
+							if (flag == 0)
+							{
+								quickSort(list, 0, list.count - 1, AscByMemory);
+								flag++;
+							}
+							else
+							{
+								quickSort(list, 0, list.count - 1, DescByMemory);
+								flag = 0;
+							}
 							break;
 						case 53:
 							menu = NULL;
-							quickSort(list, 0, list.count - 1, AscByMemory_count);
+							if (flag == 0)
+							{
+								quickSort(list, 0, list.count - 1, AscByMemory_count);
+								flag++;
+							}
+							else
+							{
+								quickSort(list, 0, list.count - 1, DescByMemory_count);
+								flag = 0;
+							}
 							break;
 						case 54:
 							menu = NULL;
-							quickSort(list, 0, list.count - 1, AscByPrice);
+							if (flag == 0)
+							{
+								quickSort(list, 0, list.count - 1, AscByPrice);
+								flag++;
+							}
+							else
+							{
+								quickSort(list, 0, list.count - 1, DescByPrice);
+								flag = 0;
+							}
 							break;
 						case 27:
 							menu = 1;
 							break;
 						}
-					}
+					}					
+				}
 					break;
 				case 51:
 
@@ -718,7 +801,7 @@ int main()
 				_getch();
 			}
 			break;
-		case 53:
+		case 53:																	// MEGA DELETE
 			menu = NULL;
 			cout << "\033[2J\033[1;1H"; // Console clear and start from top left of window
 			cout << "Are you sure about this?\n\n";
@@ -729,9 +812,11 @@ int main()
 				list.ClearList();
 				remove("data.bin");
 				cout << "\033[2J\033[1;1H"; // Console clear and start from top left of window
-				cout << "Computers was viped\n\n";
+				system("color 0C");
+				cout << "All computers was viped\n\n";
 				cout << "Press any button to exit...";
 				_getch();
+				system("color 0F");
 			}
 			break;
 		case 27:
