@@ -8,7 +8,9 @@
 #include <stdio.h> // For files
 #include <fstream>
 #include <string>
+
 using namespace std;
+
 
 struct Computer
 {
@@ -237,7 +239,7 @@ public:
 		count = 0;
 	}
 	//Вывод списка на экран	
-	void Show(int flag=5)
+	void Show(int flag=2)
 	{
 		int i = 1;
 		cout << "\033[2J\033[1;1H";
@@ -245,10 +247,8 @@ public:
 		cout.fill(' ');
 		cout << "N";
 		cout.width(20);
-		cout.fill(' ');
-		if (flag=0)
-		cout << "Manufacturer ­­↓";
-		else if ()
+		cout.fill(' ');		
+		cout << "Manufacturer";
 		cout.width(25);
 		cout.fill(' ');
 		cout << "Processor";
@@ -654,7 +654,7 @@ int main()
 					int flag = 0;
 					while (menu != 1)
 					{
-						list.Show();
+						list.Show(flag);
 						cout << '\n';
 						cout << "Sort by ...\n\n";
 						cout << "1.Manufacturer\n";
