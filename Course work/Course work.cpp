@@ -1,17 +1,14 @@
-﻿// Course work.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
-//
-
-#include <iostream>
+﻿#include <iostream>
 #include <iomanip>
 #include <stdlib.h> // For malloc()
 #include <conio.h> // For _getch()
-#include <stdio.h> // For files
-#include <fstream>
+#include <stdio.h> 
+#include <fstream> // For files
 #include <string>
 
 using namespace std;
 
-
+// Структура для хранения записи компьютера
 struct Computer
 {
 	char brand[20];
@@ -20,10 +17,12 @@ struct Computer
 	int memory;
 	int memory_count;
 	float price;
+	// Переменные для хранения указателей на след. и пред. записи в списке
 	Computer* prev, * next;
-	//Запускает процесс ввода нового ПК
+	//Функция ввода данных для нового ПК
 	void CompInput()
 	{
+		// Цикл для проверки корректности вводимых значений
 		while (true)
 		{
 			cout << "\033[2J\033[1;1H";
@@ -35,12 +34,15 @@ struct Computer
 			{
 				cout << "\033[2J\033[1;1H" << "Incorrect data! Try again...";
 				_getch();
+				// Очистка поля ввода данных
 				cin.clear();
 				cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
 			}
 		}
+		// Очистка поля ввода данных
 		cin.clear();
 		cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+		// Цикл для проверки корректности вводимых значений
 		while (true)
 		{
 			cout << "\033[2J\033[1;1H";
@@ -57,6 +59,7 @@ struct Computer
 				cin.clear();
 			}
 		}
+		// Цикл для проверки корректности вводимых значений
 		while (true)
 		{
 			cout << "\033[2J\033[1;1H";
@@ -68,12 +71,15 @@ struct Computer
 			{
 				cout << "\033[2J\033[1;1H" << "Incorrect data! Try again...";
 				_getch();
+				// Очистка поля ввода данных
 				cin.clear();
 				cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
 			}
 		}
+		// Очистка поля ввода данных
 		cin.clear();
 		cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+		// Цикл для проверки корректности вводимых значений
 		while (true)
 		{
 			cout << "\033[2J\033[1;1H";
@@ -91,6 +97,7 @@ struct Computer
 			}
 		}
 		cin.clear();
+		// Цикл для проверки корректности вводимых значений
 		while (true)
 		{
 			cout << "\033[2J\033[1;1H";
@@ -102,11 +109,13 @@ struct Computer
 			{
 				cout << "\033[2J\033[1;1H" << "Incorrect data! Try again...";
 				_getch();
+				// Очистка поля ввода данных
 				cin.clear();
 				cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
 			}
 		}
 		cin.clear();
+		// Цикл для проверки корректности вводимых значений
 		while (true)
 		{
 			cout << "\033[2J\033[1;1H";
@@ -123,26 +132,44 @@ struct Computer
 			}
 		}
 	}
+	// Попытка немного сократить код, создав конструктор для поля структуры, являющимся ссылкой на эту же структуру? wtf?
+	/*Computer(Computer data, Computer* NewPrev = NULL, Computer* NewNext = NULL)
+	{
+		strcpy(this->brand, data.brand);
+		strcpy(this->proc, data.proc);		
+		this->ram = data.ram;
+		this->memory = data.memory;
+		this->memory_count = data.memory_count;
+		this->price = data.price;
+		this->prev = NewPrev;
+		this->next = NewNext;
+	}*/
 };
 
 
-// Динамический список
-class List                 // список
+// Класс для реализации динамического двусвязного списка
+class List                
 {
 public:
+	// Переменная для хранения кол-ва записей в списке
 	int count = 0;
-	Computer* head, * tail; //начало и конец списка
+	// Начало и конец списка
+	Computer* head, * tail; 
 public:
-	//конструктор класса без параметров
+	// Конструктор класса без параметров
 	List()
 	{
-		head = NULL; //первого элемента пока нет
-		tail = NULL;
+		head = NULL; // Первого элемента пока нет
+		tail = NULL; // Последнего тоже(
 	}
 	//Добавление элемента в начало списка
-	Computer* push_front(Computer comp) {
+	Computer* push_front(Computer comp) 
+	{
+		// Выделяем память под новый элемент и записываем указатель на эту память
 		Computer* item = (Computer*)(malloc(sizeof(Computer)));
-		item->prev = item->next = NULL;				//задаем узлу данные	
+		// Передаём данные в новую запись
+		item->prev = item->next = NULL;
+		// Копирование вместо оператора =, так как он некорректно передаёт текствовые данные
 		strcpy(item->brand, comp.brand);
 		strcpy(item->proc, comp.proc);
 		item->ram = comp.ram;
@@ -159,10 +186,14 @@ public:
 		return item;
 	}
 	//Добавление элемента в конец списка
-	Computer* push_back(Computer comp) {
+	Computer* push_back(Computer comp) 
+	{
+		// Выделяем память под новый элемент и записываем указатель на эту память
 		Computer* item = (Computer*)(malloc(sizeof(Computer)));
+		// Передаём данные в новую запись
 		item->prev = item->next = NULL;
-		strcpy(item->brand, comp.brand);     //задаем узлу данные		
+		// Копирование вместо оператора =, так как он некорректно передаёт текствовые данные
+		strcpy(item->brand, comp.brand);     
 		strcpy(item->proc, comp.proc);
 		item->ram = comp.ram;
 		item->memory = comp.memory;
@@ -181,55 +212,68 @@ public:
 	void pop_front()
 	{
 		if (head == NULL) return;
-
+		// Создаём указатель на второй элемент
 		Computer* ptr = head->next;
+		// Если такой имеется
 		if (ptr != NULL)
+			// То убираем из него указатель на предыдущий элемент
 			ptr->prev = NULL;
 		else
 			tail = NULL;
-
+		// Очищаем текущий первый элемент
 		free(head);
+		// Записываем на его место "второй"
 		head = ptr;
+		// Уменьшаем общее кол-во элементов списка
 		count--;
 	}
 	//Удаление последнего элемента списка
 	void pop_back()
 	{
 		if (tail == NULL) return;
-
+		// Создаём указатель на предпоследний элемент
 		Computer* ptr = tail->prev;
+		// Если такой имеется
 		if (ptr != NULL)
+			// То убираем из него указатель на следующий элемент
 			ptr->next = NULL;
 		else
 			head = NULL;
-
+		// Очищаем текущий крайний элемент
 		free(tail);
+		// Записываем на его "предпоследний" второй
 		tail = ptr;
+		// Уменьшаем общее кол-во элементов списка
 		count--;
 	}
 	//Удаление элемента по индексу
 	void erase(int index)
 	{
+		// Получаем указатель на удаляемый элемент
 		Computer* ptr = getAt(index);
+		// Выходим если такого нет
 		if (ptr == NULL)
 			return;
-
-		if (ptr->prev == NULL) {
+		// Если это первый элемент, то удаляем спереди
+		if (ptr->prev == NULL) 
+		{
 			pop_front();
 			return;
 		}
-
-		if (ptr->next == NULL) {
+		// Если последний, то сзади
+		if (ptr->next == NULL) 
+		{
 			pop_back();
 			return;
 		}
-
+		// Создаём указатели на смежные к удалённому элементы
 		Computer* left = ptr->prev;
 		Computer* right = ptr->next;
 		left->next = right;
 		right->prev = left;
-
-		free(ptr);
+		// Освобождаем память элемента (удаляем)
+		free(ptr);		
+		this->count--;
 	}
 	//Очистка списка
 	void ClearList()
@@ -241,9 +285,13 @@ public:
 	//Вывод списка на экран	
 	void Show(/*int flag = 2*/)
 	{
+		// Переменная для нумерации элементов
 		int i = 1;
+		// Очистка консоли
 		cout << "\033[2J\033[1;1H";
+		// Указание ширины выводимых данных
 		cout.width(4);
+		// Заполнение пустого места пробелами
 		cout.fill(' ');
 		cout << "N";
 		cout.width(20);
@@ -264,6 +312,7 @@ public:
 		cout.width(15);
 		cout.fill(' ');
 		cout << "Price" << "\n";
+		// Поэлементно проходимся по списку
 		for (Computer* ptr = this->head; ptr != NULL; ptr = ptr->next)
 		{
 			cout.width(4);
@@ -290,25 +339,31 @@ public:
 			i++;
 		}
 	}
-	//Получение элемента списка по индексу
+	// Получение элемента списка по индексу
 	Computer* getAt(int index)
 	{
+		// Создаём указатель для искомого элемента
 		Computer* ptr;
+		// Переменная для хранения индекса массива относительно итераций цикла
 		int i = 0;
+		// Если искомый элемент во второй половине списка то поиск начнётся с конца, на случай большого кол-ва записей
 		if (index > this->count / 2)
 		{
+			// Начинаем с конца
 			i = this->count - 1;
 			ptr = tail;
+			// Пока не нашли
 			while (i != index)
 			{
-				if (ptr == NULL)
-					return ptr;
+				if (ptr == NULL)				
+					return ptr;				
 				ptr = ptr->prev;
 				i--;
 			}
 		}
 		else
 		{
+			// Начинаем с начала
 			ptr = head;
 			while (i != index)
 			{
@@ -320,39 +375,48 @@ public:
 		}
 		return ptr;
 	}
-	//Получение элемента списка по индексу через оператор []
+	// Получение элемента списка по индексу через оператор []
 	Computer* operator [] (int index) {
 		return getAt(index);
 	}
+	// Добавление элемента по индексу
 	Computer* insert(int index, Computer data)
 	{
+		// Записываем элемент, находящийся на месте нового 
 		Computer* right = getAt(index);
+		// Если такого нет, 
 		if (right == NULL)
+			// то всавляем в конец списка
 			return push_back(data);
-
+		// Записываем элемент перед текущим
 		Computer* left = right->prev;
+		// Если такого нет, 
 		if (left == NULL)
+			// то вставляем в начало списка
 			return push_front(data);
-
-		Computer* ptr = new Computer(data);
-
+		// Выделяем память под новый элемент и записываем указатель на эту память
+		Computer* ptr = (Computer*)malloc(sizeof(Computer));	
+		// Передаём данные в новую запись
+			strcpy(ptr->brand, data.brand);
+			strcpy(ptr->proc, data.proc);
+			ptr->ram = data.ram;
+			ptr->memory = data.memory;
+			ptr->memory_count = data.memory_count;
+			ptr->price = data.price;
+			// Меняем местами указатели
 		ptr->prev = left;
 		ptr->next = right;
 		left->next = ptr;
 		right->prev = ptr;
+		// Возвращаем новый элемент
 		return ptr;
 	}
+	// Функция для рокировки элементов
 	void swap(Computer* first, Computer* second)
 	{
-		/*if (first->prev == NULL)
-			this->head = second;
-		if (second->prev == NULL)
-			this->head = first;
-		if (first->next == NULL)
-			this->tail = second;
-		if (second->next == NULL)
-			this->tail = first;*/
+		// Выделяем память под временный элемент и записываем указатель на эту память		
 		Computer* temp = (Computer*)(malloc(sizeof(Computer)));
+		// Передаём в него данные
 		strcpy(temp->brand, first->brand);
 		strcpy(temp->proc, first->proc);
 		temp->ram = first->ram;
@@ -373,26 +437,32 @@ public:
 		second->memory = temp->memory;
 		second->memory_count = temp->memory_count;
 		second->price = temp->price;
-
+		// Освобождаем ранее выделенную память
 		free(temp);
 	}
+	// Функция получения суммы цены всех компьютеров в списке
 	float GetSumm()
 	{
+		// Переменная для записи суммы
 		float sum=0;
-		for (Computer* ptr = this->head; ptr != NULL; ptr = ptr->next)
-		{
-			sum += ptr->price;
-		}
+		// Поэлементно проходим список
+		for (Computer* ptr = this->head; ptr != NULL; ptr = ptr->next)		
+			// Добавляем цену текущего пк к сумме
+			sum += ptr->price;		
+		// Возвращаем сумму
 		return sum;
 	}
 };
 //Поиск по текстовым полям
 List search(List& list, string s)
 {
+	// Инициализируем список для вывода результатов поиска
 	List result;
 	int i = 0;
+	// Поэлементно проходим список
 	for (Computer* ptr = list.head; ptr != NULL; ptr = ptr->next)
 	{
+		// Сравниваем результаты выполнения функции поиска из библиотеки для работы со строками
 		if (((((string)(ptr->brand))).find(s) != string::npos) || ((string)(ptr->proc)).find(s) != string::npos)
 		{
 			result.push_back(*list.getAt(i));
@@ -401,8 +471,28 @@ List search(List& list, string s)
 	}
 	return result;
 }
+// Поиск по численным полям
+List search(List& list, float input)
+{
+	// Инициализируем список для вывода результатов поиска
+	List result;
+	int i = 0;
+	// Поэлементно проходим список
+	for (Computer* ptr = list.head; ptr != NULL; ptr = ptr->next)
+	{
+		// Сравниваем данные текущего элемента с введёнными
+		if ((ptr->ram) == input || ptr->memory == input || ptr->memory_count == input || ptr->price==input)
+		{
+			result.push_back(*list.getAt(i));
+		}
+		i++;
+	}
+	return result;
+}
+// Фильтр по числовым полям
 List filter(List& list, bool(*func)(Computer*, Computer*), float item)
 {
+	// Инициализируем список для вывода результатов поиска
 	List result;
 	int i = 0;
 	Computer* temp = (Computer*)(malloc(sizeof(Computer)));
@@ -410,8 +500,10 @@ List filter(List& list, bool(*func)(Computer*, Computer*), float item)
 	temp->memory_count = item;
 	temp->ram = item;
 	temp->price = item;
+	// Поэлементно проходим список
 	for (Computer* ptr = list.head; ptr != NULL; ptr = ptr->next)
 	{
+		// Для сравнения с искомыми данными используем функции сравнения определённых полей
 		if (func(ptr, temp))
 		{
 			result.push_back(*list.getAt(i));
@@ -425,23 +517,30 @@ List filter(List& list, bool(*func)(Computer*, Computer*), float item)
 //Чтение структуры из файла
 void _readStruct(List& list)
 {
-	struct Computer* computer = (struct Computer*)malloc(sizeof(Computer));
-	FILE* file; // переменная для работы с файлом
-	long i = 0, fEnd;    // переменная для обозначения конца файла
-	//E:\\data.bin
-	if (file = fopen("data.bin", "rb"))                                   // открываем бинарный файл для чтения 							
+	Computer* computer = (Computer*)malloc(sizeof(Computer));
+	// Переменная для работы с файлом
+	FILE* file; 
+	// Переменная для обозначения конца файла
+	long i = 0, fEnd;    	
+	// Открываем бинарный файл для чтения 							
+	if (file = fopen("data.bin", "rb"))                                   
 	{
-		fseek(file, 0, SEEK_END); // перемещаем курсор в конец файла.
-		fEnd = ftell(file);					// функция выдаст конечное положнние курсора относительно начала файла в байтах.				
+		// Перемещаем курсор в конец файла.
+		fseek(file, 0, SEEK_END); 
+		// Функция выдаст конечное положнние курсора относительно начала файла в байтах.				
+		fEnd = ftell(file);					
 		while (i < fEnd)
 		{
-			fseek(file, i, SEEK_SET); // перемещаемся от начала (SEEK_SET) файла на ... длинн структуры
-			fread(computer, sizeof(Computer), 1, file); // считываем из файла f ровно 1 структуру размера Computer			
-			// вывод на консоль загруженной структуры
+			// Перемещаемся от начала (SEEK_SET) файла на i длинн структуры
+			fseek(file, i, SEEK_SET); 
+			// Считываем из файла 1 структуру размера Computer			
+			fread(computer, sizeof(Computer), 1, file); 
+			// Добавляем в список прочитанную структуру
 			list.push_back(*computer);
 			i += sizeof(Computer);
 		}
-		fclose(file); // закрываем файл
+		// Закрываем файл
+		fclose(file); 
 		free(computer);
 	}
 }
@@ -449,42 +548,18 @@ void _readStruct(List& list)
 //Запись структуры в файл
 void _writeStruct(List list)
 {
-	FILE* f; // переменная для работы с файлом
+	// Переменная для работы с файлом
+	FILE* f; 
 	f = fopen("data.bin", "wb");
 	for (Computer* ptr = list.head; ptr != NULL; ptr = ptr->next)
 	{
-		fwrite(ptr, sizeof(Computer), 1, f); // записываем в файл f р		
+		// Записываем в файл		
+		fwrite(ptr, sizeof(Computer), 1, f); 
 	}
-	fclose(f); // закрываем файл					
-	//switch (option)
-	//{
-	//case Option::Write:
-	//	//E:\\data.bin
-	//	f = fopen("data.bin", "ab+"); // открываем бинарный файл для записи и чтения в режиме добавления, то есть, если файла нет, то он создастся, а если файл есть, 
-	//	fseek(f, 0, SEEK_END);// то содержимое файла не будет уничтожено, из файла можно будет читать и в файл можно будет записывать				
-	//	fwrite(&computer, sizeof(Computer), 1, f); // записываем в файл f р		
-	//	fclose(f); // закрываем файл
-	//	cout << "\033[2J\033[1;1H";
-	//	cout << "\nNew computer sucсessfully added!\n\nPress any key to continue...";
-	//	_getch(); // ожидаем нажатия пользователем клавиши
-	//	break;
-	//case Option::Delete:
-	//	f = fopen("data.bin", "wb");
-	//	for (Computer* ptr = list.head; ptr != NULL; ptr = ptr->next)
-	//	{
-	//		fwrite(ptr, sizeof(Computer), 1, f); // записываем в файл f р		
-	//	}
-	//	fclose(f); // закрываем файл		
-	//	break;
-	//case Option::Edit:
-	//	f = fopen("data.bin", "r+");  // r+ для изменения файла
-	//	fseek(f, i * sizeof(Computer), SEEK_SET);
-	//	fwrite(&computer, sizeof(Computer), 1, f); // записываем в файл f р		
-	//	fclose(f); // закрываем файл		
-	//	break;
-	//}
+	// Закрываем файл						
+	fclose(f); 
 }
-// Сравнение определённый полей структуры для сортровки по возрастанию
+// Сравнение определённых полей структуры для сортровки по возрастанию
 bool AscByBrand(Computer* a, Computer* b)
 {
 	if (strcmp(a->brand, b->brand) <= 0)
@@ -546,50 +621,48 @@ bool DescByPrice(Computer* a, Computer* b)
 {
 	return a->price >= b->price;
 }
-//Функция сортировки элементов до обозначенного
+// Функция сортировки элементов до обозначенного
 int partition(List list, int first, int last, bool(*func)(Computer*, Computer*))
 {
-	// select the rightmost element as pivot
+	// Выбираем крайнюю запись в качестве опорной точки
 	Computer* pivot = list[last];
 
-	// pointer for greater element
+	// Переменная для наибольшего элемента
 	int i = (first - 1);
 
-	// traverse each element of the array
-	// compare them with the pivot
+	// Проходим записи списка
+	// Сравнимаем при помощи функций с крайней записью
 	for (int j = first; j < last; j++)
 	{
 		if (func(list[j], pivot))
 		{
 
-			// if element smaller than pivot is found
-			// swap it with the greater element pointed by i
+			// Если найден элемент меньше
+			// То меняем его с наибольшим, записанным в i
 			i++;
 
-			// swap element at i with element at j
+			// Меняем записи по индексам i и j местами
 			list.swap(list[i], list[j]);
 		}
 	}
 
-	// swap pivot with the greater element at i
+	// Меняем точку опоры с наибольшим элементом в i
 	list.swap(list[i + 1], list[last]);
 
-	// return the partition point
+	// Возвращаем точку раздела
 	return (i + 1);
 }
-
+// Функция сортировки
 void quickSort(List& list, int first, int last, bool(*func)(Computer*, Computer*))
 {
-	// Base case: This part will be executed till the starting
-	// index low is lesser than the ending index high
+	// Проверка на заполненность списка
 	if (first < last)
 	{
-		// pi is Partitioning Index, arr[p] is now at
-		// right place
+		// pi это точка разделения списка		
 		int pi = partition(list, first, last, func);
 
-		// Separately sort elements before and after the
-		// Partition Index pi
+		// Отдельно сортируем элементы до и после
+		// разделителя pi
 		quickSort(list, first, pi - 1, func);
 		quickSort(list, pi + 1, last, func);
 	}
@@ -599,15 +672,19 @@ void quickSort(List& list, int first, int last, bool(*func)(Computer*, Computer*
 
 int main()
 {
+	// Инициализируем список
 	List list;
-	int menu, i;
+	// Инициализируем переменную для переходов по меню
+	int menu;
 	menu = NULL;
+	// Инициализируем переменную для записи компьютеров
 	Computer computer;
 	// Попытка считать данные с файла
 	_readStruct(list);
 	// Цикл для меню
 	while (menu != 27)
 	{
+		// Проверка на существование записей в списке
 		if (list.count == 0)
 		{
 			while (true)
@@ -630,7 +707,8 @@ int main()
 		}
 		if (menu != 50)
 		{
-			cout << "\033[2J\033[1;1H"; // Console clear and start from top left of window
+			// Выводим главное меню
+			cout << "\033[2J\033[1;1H"; // Очистка консоли
 			cout << "Choose option!\n\n";
 			cout << "1.Computer list\n";
 			cout << "2.Add computer\n";
@@ -639,15 +717,19 @@ int main()
 			cout << "5.Delete all computers\n";
 			cout << "6.Check price for all computers\n\n";
 			cout << "Press Esc to save and exit\n";
+			// Считываем нажатую клавишу
 			menu = _getch();
 		}
 		switch (menu)
 		{
-		case 49:																	// SHOW LIST			
+																					// SHOW LIST			
+		case 49:
+		{
+
 			while (menu != 2)
 			{
 				menu = NULL;
-				cout << "\033[2J\033[1;1H"; // Console clear and start from top left of window
+				cout << "\033[2J\033[1;1H"; // Очистка консоли
 				list.Show();
 				cout << '\n';
 				cout << "Choose option!\n\n";
@@ -656,29 +738,64 @@ int main()
 				cout << "3.Filter\n";
 				switch (menu = _getch())
 				{
-				case 49:												// SEARCH
+																			// SEARCH
+				case 49:												
 				{
 					menu = NULL;
-					string s;
-					cout << "\033[2J\033[1;1H"; // Console clear and start from top left of window					
+					cout << "\033[2J\033[1;1H"; // Очистка консоли					
 					cout << "Choose option!\n\n";
-					cout << "Search for:\n";
-					cin >> s;
-					List result = search(list, s);
-					if (result.count != 0)
-						result.Show();
-					else
+					cout << "1. Search by name\n";
+					cout << "2. Search by stats\n";
+					switch (_getch())
 					{
+														// Поиск по тексту
+					case 49:            
+					{
+						string s;
+						// Очистка консоли									
 						cout << "\033[2J\033[1;1H";
-						cout << "Computers not found\n\n";
+						cout << "Search for: ";
+						cin >> s;
+						List result = search(list, s);
+						if (result.count != 0)
+							result.Show();
+						else
+						{
+							cout << "\033[2J\033[1;1H";
+							cout << "Computers not found\n\n";
+						}
+						_getch();
+						result.ClearList();
 					}
-					_getch();
-					result.ClearList();
+					break;
+														// Поиск по числам
+					case 50:		
+					{
+						List result;
+						float s;						
+						cout << "\033[2J\033[1;1H"; 
+						cout << "Search for: ";
+						if(cin >> s)
+						result = search(list, s);
+						if (result.count != 0)
+							result.Show();
+						else
+						{
+							cout << "\033[2J\033[1;1H";
+							cout << "Computers not found\n\n";
+						}
+						_getch();
+						result.ClearList();
+					}
+					break;
+					}
 					break;
 				}
-				case 50:												// SORT
+																			// SORT
+				case 50:												
 				{
 					menu = NULL;
+					// Флаг для определения в каком порядке сортировать
 					int flag = 0;
 					while (menu != 1)
 					{
@@ -693,7 +810,10 @@ int main()
 						cout << "6.Price\n";
 						switch (menu = _getch())
 						{
+									// sort by Manufacturer
 						case 49:
+						{
+
 							menu = NULL;
 							if (flag == 0)
 							{
@@ -706,7 +826,11 @@ int main()
 								flag = 0;
 							}
 							break;
+						}
+									// sort by Processor
 						case 50:
+						{
+
 							menu = NULL;
 							if (flag == 0)
 							{
@@ -719,7 +843,11 @@ int main()
 								flag = 0;
 							}
 							break;
+						}
+									// sort by RAM
 						case 51:
+						{
+
 							menu = NULL;
 							if (flag == 0)
 							{
@@ -732,7 +860,11 @@ int main()
 								flag = 0;
 							}
 							break;
+						}
+									// sort by Memory
 						case 52:
+						{
+
 							menu = NULL;
 							if (flag == 0)
 							{
@@ -745,7 +877,11 @@ int main()
 								flag = 0;
 							}
 							break;
+						}
+									// sort by Memmory_count
 						case 53:
+						{
+
 							menu = NULL;
 							if (flag == 0)
 							{
@@ -758,7 +894,11 @@ int main()
 								flag = 0;
 							}
 							break;
+						}
+									// sort by Price
 						case 54:
+						{
+
 							menu = NULL;
 							if (flag == 0)
 							{
@@ -771,14 +911,17 @@ int main()
 								flag = 0;
 							}
 							break;
+						}
+									// Выход в предыдущее меню (27 — Esc)
 						case 27:
 							menu = 1;
 							break;
 						}
 					}
-				}
 				break;
-				case 51:												// FILTER
+				}
+																			// FILTER
+				case 51:													
 				{
 					menu = NULL;
 					List result;
@@ -789,20 +932,21 @@ int main()
 						result.Show();
 						cout << '\n';
 						cout << "Filter by ...\n\n";
-						cout << "1.Manufacturer\n";
-						cout << "2.Processor\n";
-						cout << "3.RAM\n";
-						cout << "4.Memory\n";
-						cout << "5.Memory count\n";
-						cout << "6.Price\n";
+						cout << "1.Manufacturer/Processor\n";						
+						cout << "2.RAM\n";
+						cout << "3.Memory\n";
+						cout << "4.Memory count\n";
+						cout << "5.Price\n\n";						
+						cout << "Summary price for these computers is " << fixed << setprecision(2) << result.GetSumm() << "\n\n";												
 						switch (menu = _getch())
 						{
+									// filter by Text
 						case 49:						
 						{
 							string input;
 							result.Show();
 							cout << '\n';
-							cout << "Manufacturer must include:\n\n";
+							cout << "Computer must include:\n\n";
 							cin >> input;
 							result = search(result, input);
 							if (result.count != 0)
@@ -815,27 +959,9 @@ int main()
 								menu = 1;
 							}
 							break;
-						}				
+						}										
+									// filter by Ram
 						case 50:
-						{
-							string input;
-							result.Show();
-							cout << '\n';
-							cout << "Processor must include:\n\n";
-							cin >> input;
-							result = search(result, input);
-							if (result.count != 0)
-								menu = NULL;
-							else
-							{
-								cout << "\033[2J\033[1;1H";
-								cout << "Computers not found\n\n";
-								_getch();
-								menu = 1;
-							}
-							break;
-						}
-						case 51:
 						{
 							while (menu != 2)
 							{
@@ -843,8 +969,8 @@ int main()
 								result.Show();
 								cout << '\n';
 								cout << "Ram must be\n\n";
-								cout << "1. Lower than:\n";
-								cout << "2. Bigger than:\n";
+								cout << "1.Lower than:\n";
+								cout << "2.Bigger than:\n";
 								switch (_getch())
 								{
 								case 49:
@@ -899,6 +1025,7 @@ int main()
 									}
 								}
 								break;
+								// Выход в предыдущее меню (27 — Esc)
 								case 27:
 								{
 									menu = 2;
@@ -911,16 +1038,17 @@ int main()
 									break;
 							}
 						}
-						case 52:
+									// filter by Memory
+						case 51:
 						{
 							while (menu != 2)
 							{
 								float input = NULL;
 								result.Show();
 								cout << '\n';
-								cout << "Ram must be\n\n";
-								cout << "1. Lower than:\n";
-								cout << "2. Bigger than:\n";
+								cout << "Memory must be\n\n";
+								cout << "1.Lower than:\n";
+								cout << "2.Bigger than:\n";
 								switch (_getch())
 								{
 								case 49:
@@ -987,16 +1115,17 @@ int main()
 									break;
 							}
 						}
-						case 53:
+									// filter by Memory count
+						case 52:
 						{
 							while (menu != 2)
 							{
 								float input = NULL;
 								result.Show();
 								cout << '\n';
-								cout << "Ram must be\n\n";
-								cout << "1. Lower than:\n";
-								cout << "2. Bigger than:\n";
+								cout << "Memory count must be\n\n";
+								cout << "1.Lower than:\n";
+								cout << "2.Bigger than:\n";
 								switch (_getch())
 								{
 								case 49:
@@ -1063,14 +1192,15 @@ int main()
 									break;
 							}
 						}
-						case 54:
+									// filter by Price
+						case 53:
 						{
 							while (menu != 2)
 							{
 								float input = NULL;
 								result.Show();
 								cout << '\n';
-								cout << "Ram must be\n\n";
+								cout << "Price must be\n\n";
 								cout << "1. Lower than:\n";
 								cout << "2. Bigger than:\n";
 								switch (_getch())
@@ -1139,6 +1269,7 @@ int main()
 									break;
 							}
 						}
+						// Выход в предыдущее меню (27 — Esc)
 						case 27:
 						{
 							menu = 1;
@@ -1148,53 +1279,80 @@ int main()
 					}
 					break;
 				}
+										// Выход в предыдущее меню (27 — Esc)
 				case 27:
+				{
 					menu = 2;
 					break;
 				}
+				}
 			}
 			break;
-		case 50:																	// ADD
+		}
+																					// ADD
+		case 50:		
+		{
 			menu = NULL;
 			while (menu != 2)
 			{
 				menu = NULL;
-				cout << "\033[2J\033[1;1H"; // Console clear and start from top left of window
+				cout << "\033[2J\033[1;1H"; // Очистка консоли
 				cout << '\n';
 				cout << "Choose option!\n\n";
 				cout << "1.One\n";
 				cout << "2.Many\n";
 				switch (menu = _getch())
 				{
+					// Добавление одного пк вручную
 				case 49:
+				{
+					// Вызываем функцию добавления и вручную вводим все данные
 					computer.CompInput();
+					// Записанный пк добавляем в список
 					list.push_back(computer);
+					// Возвращаемся в главное меню
 					menu = 2;
 					break;
+				}
+					// Добавление всех пк из буфера обмена, но копированные исключительно из текстового файла в проекте
 				case 50:
+				{
 					menu = 1;
+					// Запускаем цикл на количество добавляемых пк
 					while (menu <= 9)
-					{
+					{				
 						computer.CompInput();
 						list.push_back(computer);
 						menu++;
 					}
+					// Очищаем строку ввода от излишков данных
 					while (menu != 27)
 						menu = _getch();
-					menu = 2;
-					break;
-				case 27:
+					// Выходим в гланое меню
 					menu = 2;
 					break;
 				}
+					// Выход в предыдущее меню (27 — Esc)
+				case 27:
+				{
+
+					menu = 2;
+					break;
+				}
+				}
 			}
 			break;
-		case 51:																	// EDIT
+		}
+																					// EDIT
+		case 51:																	
+		{
 			menu = NULL;
+			// Цикл для проверки ввода
 			while (true)
 			{
 				list.Show();
 				cout << "Enter which computer you want to edit:\n";
+				// Проверка на корректность введённых данных
 				if (cin >> menu && menu <= list.count && menu > 0)
 					break;
 				else
@@ -1205,15 +1363,22 @@ int main()
 					cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
 				}
 			}
+			// Вводим новые данные для выбранной записи
 			computer.CompInput();
+			// Удаляем выбранную запись
 			list.erase(menu - 1);
+			// Вставляем на её место новую
 			list.insert(menu - 1, computer);
 			menu = NULL;
 			cout << "Press any button to exit...";
 			_getch();
 			break;
-		case 52:																	// DELETE
+		}
+																					// DELETE
+		case 52:		
+		{
 			menu = NULL;
+			// Цикл для проверки вводимых значений
 			while (true)
 			{
 				list.Show();
@@ -1234,14 +1399,17 @@ int main()
 			{
 				list.erase(menu - 1);
 				menu = NULL;
-				cout << "\033[2J\033[1;1H"; // Console clear and start from top left of window
+				cout << "\033[2J\033[1;1H"; // Очистка консоли
 				cout << "Press any button to exit...";
 				_getch();
 			}
 			break;
-		case 53:																	// MEGA DELETE
+		}
+																					// MEGA DELETE
+		case 53:																	
+		{
 			menu = NULL;
-			cout << "\033[2J\033[1;1H"; // Console clear and start from top left of window
+			cout << "\033[2J\033[1;1H"; // Очистка консоли
 			cout << "Are you sure about this?\n\n";
 			cout << "1.Yes\n";
 			cout << "2.No\n\n";
@@ -1249,44 +1417,36 @@ int main()
 			{
 				list.ClearList();
 				remove("data.bin");
-				cout << "\033[2J\033[1;1H"; // Console clear and start from top left of window
+				cout << "\033[2J\033[1;1H"; // Очистка консоли
+				// Изменение цвета текста в консоли для лучше передачи неотвратимости сделанного
 				system("color 0C");
 				cout << "All computers was deleted\n\n";
 				cout << "Press any button to exit...";
 				_getch();
+				// Возврат к стандартному цвету
 				system("color 0F");
 			}
 			break;
+		}
+																					// Get All Summ
 		case 54:
 		{
-			cout << "\033[2J\033[1;1H"; // Console clear and start from top left of window
+			cout << "\033[2J\033[1;1H"; // Очистка консоли
 			cout << "Summary price for all computers is " << fixed << setprecision(2)<<list.GetSumm()<<"\n\n";
 			cout << "Press any button to continue...";			
 			_getch();
-		}
 			break;
+		}
+													// Выход из приложения (27 — Esc)
 		case 27:
+		{
+			// Сохранение внесённых изменений (запись текущего списка в файл)
 			_writeStruct(list);
+			// Очистка списка
 			list.ClearList();
 			exit(0);
 			break;
 		}
+		}
 	}
 }
-
-
-
-
-
-
-
-// Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
-// Отладка программы: F5 или меню "Отладка" > "Запустить отладку"
-
-// Советы по началу работы 
-//   1. В окне обозревателя решений можно добавлять файлы и управлять ими.
-//   2. В окне Team Explorer можно подключиться к системе управления версиями.
-//   3. В окне "Выходные данные" можно просматривать выходные данные сборки и другие сообщения.
-//   4. В окне "Список ошибок" можно просматривать ошибки.
-//   5. Последовательно выберите пункты меню "Проект" > "Добавить новый элемент", чтобы создать файлы кода, или "Проект" > "Добавить существующий элемент", чтобы добавить в проект существующие файлы кода.
-//   6. Чтобы снова открыть этот проект позже, выберите пункты меню "Файл" > "Открыть" > "Проект" и выберите SLN-файл.
