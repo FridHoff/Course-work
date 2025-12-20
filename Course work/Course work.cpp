@@ -239,7 +239,7 @@ public:
 		count = 0;
 	}
 	//Вывод списка на экран	
-	void Show(int flag=2)
+	void Show(/*int flag = 2*/)
 	{
 		int i = 1;
 		cout << "\033[2J\033[1;1H";
@@ -247,7 +247,7 @@ public:
 		cout.fill(' ');
 		cout << "N";
 		cout.width(20);
-		cout.fill(' ');		
+		cout.fill(' ');
 		cout << "Manufacturer";
 		cout.width(25);
 		cout.fill(' ');
@@ -286,7 +286,7 @@ public:
 			cout << ptr->memory_count;
 			cout.width(15);
 			cout.fill(' ');
-			cout<<fixed << setprecision(2) << ptr->price << "\n";
+			cout << fixed << setprecision(2) << ptr->price << "\n";
 			i++;
 		}
 	}
@@ -376,25 +376,52 @@ public:
 
 		free(temp);
 	}
+	float GetSumm()
+	{
+		float sum=0;
+		for (Computer* ptr = this->head; ptr != NULL; ptr = ptr->next)
+		{
+			sum += ptr->price;
+		}
+		return sum;
+	}
 };
 //Поиск по текстовым полям
-	List search(List &list, string s)
+List search(List& list, string s)
+{
+	List result;
+	int i = 0;
+	for (Computer* ptr = list.head; ptr != NULL; ptr = ptr->next)
 	{
-		List result;
-		int i = 0;
-		for (Computer* ptr = list.head; ptr != NULL; ptr = ptr->next)
+		if (((((string)(ptr->brand))).find(s) != string::npos) || ((string)(ptr->proc)).find(s) != string::npos)
 		{
-			if (((((string)(ptr->brand))).find(s) != string::npos) || ((string)(ptr->proc)).find(s) != string::npos)
-			{				
-				result.push_back(*list.getAt(i));				
-			}
-			i++;
+			result.push_back(*list.getAt(i));
 		}
-		return result;
+		i++;
 	}
+	return result;
+}
+List filter(List& list, bool(*func)(Computer*, Computer*), float item)
+{
+	List result;
+	int i = 0;
+	Computer* temp = (Computer*)(malloc(sizeof(Computer)));
+	temp->memory = item;
+	temp->memory_count = item;
+	temp->ram = item;
+	temp->price = item;
+	for (Computer* ptr = list.head; ptr != NULL; ptr = ptr->next)
+	{
+		if (func(ptr, temp))
+		{
+			result.push_back(*list.getAt(i));
+		}
+		i++;
+	}
+	free(temp);
+	return result;
+}
 
-//Перечисление для функции записи
-//enum class Option { Write, Delete, Edit };
 //Чтение структуры из файла
 void _readStruct(List& list)
 {
@@ -646,6 +673,7 @@ int main()
 						cout << "Computers not found\n\n";
 					}
 					_getch();
+					result.ClearList();
 					break;
 				}
 				case 50:												// SORT
@@ -654,7 +682,7 @@ int main()
 					int flag = 0;
 					while (menu != 1)
 					{
-						list.Show(flag);
+						list.Show();
 						cout << '\n';
 						cout << "Sort by ...\n\n";
 						cout << "1.Manufacturer\n";
@@ -747,15 +775,379 @@ int main()
 							menu = 1;
 							break;
 						}
-					}					
+					}
 				}
+				break;
+				case 51:												// FILTER
+				{
+					menu = NULL;
+					List result;
+					result.ClearList();
+					result = list;
+					while (menu != 1)
+					{
+						result.Show();
+						cout << '\n';
+						cout << "Filter by ...\n\n";
+						cout << "1.Manufacturer\n";
+						cout << "2.Processor\n";
+						cout << "3.RAM\n";
+						cout << "4.Memory\n";
+						cout << "5.Memory count\n";
+						cout << "6.Price\n";
+						switch (menu = _getch())
+						{
+						case 49:						
+						{
+							string input;
+							result.Show();
+							cout << '\n';
+							cout << "Manufacturer must include:\n\n";
+							cin >> input;
+							result = search(result, input);
+							if (result.count != 0)
+								menu = NULL;
+							else
+							{
+								cout << "\033[2J\033[1;1H";
+								cout << "Computers not found\n\n";
+								_getch();
+								menu = 1;
+							}
+							break;
+						}				
+						case 50:
+						{
+							string input;
+							result.Show();
+							cout << '\n';
+							cout << "Processor must include:\n\n";
+							cin >> input;
+							result = search(result, input);
+							if (result.count != 0)
+								menu = NULL;
+							else
+							{
+								cout << "\033[2J\033[1;1H";
+								cout << "Computers not found\n\n";
+								_getch();
+								menu = 1;
+							}
+							break;
+						}
+						case 51:
+						{
+							while (menu != 2)
+							{
+							float input = NULL;
+								result.Show();
+								cout << '\n';
+								cout << "Ram must be\n\n";
+								cout << "1. Lower than:\n";
+								cout << "2. Bigger than:\n";
+								switch (_getch())
+								{
+								case 49:
+								{
+									result.Show();
+									cout << '\n';
+									cout << "Ram must be\n\n";
+									cout << "Lower than: ";
+									if(cin >> input)
+									result = filter(result, AscByRam, input);
+									else
+									{
+										cout << "\033[2J\033[1;1H";
+										cout << "Computers not found\n\n";
+										_getch();
+										menu = 1;
+									}
+									if (result.count != 0)
+										menu = NULL;
+									else
+									{
+										cout << "\033[2J\033[1;1H";
+										cout << "Computers not found\n\n";
+										_getch();
+										menu = 1;					
+									}
+								}
+								break;
+								case 50:
+								{
+									result.Show();
+									cout << '\n';
+									cout << "Ram must be\n\n";
+									cout << "Bigger than: ";
+									if(cin >> input)
+									result = filter(result, DescByRam, input);
+									else
+									{
+										cout << "\033[2J\033[1;1H";
+										cout << "Computers not found\n\n";
+										_getch();
+										menu = 1;
+									}
+									if (result.count != 0)
+										menu = NULL;
+									else
+									{
+										cout << "\033[2J\033[1;1H";
+										cout << "Computers not found\n\n";
+										_getch();
+										menu = 1;									
+									}
+								}
+								break;
+								case 27:
+								{
+									menu = 2;
+									break;
+								}						
+								}
+								cin.clear();
+								cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+								if (menu == 1)
+									break;
+							}
+						}
+						case 52:
+						{
+							while (menu != 2)
+							{
+								float input = NULL;
+								result.Show();
+								cout << '\n';
+								cout << "Ram must be\n\n";
+								cout << "1. Lower than:\n";
+								cout << "2. Bigger than:\n";
+								switch (_getch())
+								{
+								case 49:
+								{
+									result.Show();
+									cout << '\n';
+									cout << "Ram must be\n\n";
+									cout << "Lower than: ";
+									if (cin >> input)
+										result = filter(result, AscByMemory, input);
+									else
+									{
+										cout << "\033[2J\033[1;1H";
+										cout << "Computers not found\n\n";
+										_getch();
+										menu = 1;
+									}
+									if (result.count != 0)
+										menu = NULL;
+									else
+									{
+										cout << "\033[2J\033[1;1H";
+										cout << "Computers not found\n\n";
+										_getch();
+										menu = 1;
+									}
+								}
+								break;
+								case 50:
+								{
+									result.Show();
+									cout << '\n';
+									cout << "Ram must be\n\n";
+									cout << "Bigger than: ";
+									if (cin >> input)
+										result = filter(result, DescByMemory, input);
+									else
+									{
+										cout << "\033[2J\033[1;1H";
+										cout << "Computers not found\n\n";
+										_getch();
+										menu = 1;
+									}
+									if (result.count != 0)
+										menu = NULL;
+									else
+									{
+										cout << "\033[2J\033[1;1H";
+										cout << "Computers not found\n\n";
+										_getch();
+										menu = 1;
+									}
+								}
+								break;
+								case 27:
+								{
+									menu = 2;
+									break;
+								}
+								}
+								cin.clear();
+								cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+								if (menu == 1)
+									break;
+							}
+						}
+						case 53:
+						{
+							while (menu != 2)
+							{
+								float input = NULL;
+								result.Show();
+								cout << '\n';
+								cout << "Ram must be\n\n";
+								cout << "1. Lower than:\n";
+								cout << "2. Bigger than:\n";
+								switch (_getch())
+								{
+								case 49:
+								{
+									result.Show();
+									cout << '\n';
+									cout << "Ram must be\n\n";
+									cout << "Lower than: ";
+									if (cin >> input)
+										result = filter(result, AscByMemory_count, input);
+									else
+									{
+										cout << "\033[2J\033[1;1H";
+										cout << "Computers not found\n\n";
+										_getch();
+										menu = 1;
+									}
+									if (result.count != 0)
+										menu = NULL;
+									else
+									{
+										cout << "\033[2J\033[1;1H";
+										cout << "Computers not found\n\n";
+										_getch();
+										menu = 1;
+									}
+								}
+								break;
+								case 50:
+								{
+									result.Show();
+									cout << '\n';
+									cout << "Ram must be\n\n";
+									cout << "Bigger than: ";
+									if (cin >> input)
+										result = filter(result, DescByMemory_count, input);
+									else
+									{
+										cout << "\033[2J\033[1;1H";
+										cout << "Computers not found\n\n";
+										_getch();
+										menu = 1;
+									}
+									if (result.count != 0)
+										menu = NULL;
+									else
+									{
+										cout << "\033[2J\033[1;1H";
+										cout << "Computers not found\n\n";
+										_getch();
+										menu = 1;
+									}
+								}
+								break;
+								case 27:
+								{
+									menu = 2;
+									break;
+								}
+								}
+								cin.clear();
+								cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+								if (menu == 1)
+									break;
+							}
+						}
+						case 54:
+						{
+							while (menu != 2)
+							{
+								float input = NULL;
+								result.Show();
+								cout << '\n';
+								cout << "Ram must be\n\n";
+								cout << "1. Lower than:\n";
+								cout << "2. Bigger than:\n";
+								switch (_getch())
+								{
+								case 49:
+								{
+									result.Show();
+									cout << '\n';
+									cout << "Ram must be\n\n";
+									cout << "Lower than: ";
+									if (cin >> input)
+										result = filter(result, AscByPrice, input);
+									else
+									{
+										cout << "\033[2J\033[1;1H";
+										cout << "Computers not found\n\n";
+										_getch();
+										menu = 1;
+									}
+									if (result.count != 0)
+										menu = NULL;
+									else
+									{
+										cout << "\033[2J\033[1;1H";
+										cout << "Computers not found\n\n";
+										_getch();
+										menu = 1;
+									}
+								}
+								break;
+								case 50:
+								{
+									result.Show();
+									cout << '\n';
+									cout << "Ram must be\n\n";
+									cout << "Bigger than: ";
+									if (cin >> input)
+										result = filter(result, DescByPrice, input);
+									else
+									{
+										cout << "\033[2J\033[1;1H";
+										cout << "Computers not found\n\n";
+										_getch();
+										menu = 1;
+									}
+									if (result.count != 0)
+										menu = NULL;
+									else
+									{
+										cout << "\033[2J\033[1;1H";
+										cout << "Computers not found\n\n";
+										_getch();
+										menu = 1;
+									}
+								}
+								break;
+								case 27:
+								{
+									menu = 2;
+									break;
+								}
+								}
+								cin.clear();
+								cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+								if (menu == 1)
+									break;
+							}
+						}
+						case 27:
+						{
+							menu = 1;
+							break;
+						}
+						}
+					}
 					break;
-				case 51:
-
-					break;
-				case 52:
-
-					break;
+				}
 				case 27:
 					menu = 2;
 					break;
@@ -763,7 +1155,7 @@ int main()
 			}
 			break;
 		case 50:																	// ADD
-			menu = NULL;			
+			menu = NULL;
 			while (menu != 2)
 			{
 				menu = NULL;
@@ -774,19 +1166,19 @@ int main()
 				cout << "2.Many\n";
 				switch (menu = _getch())
 				{
-				case 49:					
+				case 49:
 					computer.CompInput();
 					list.push_back(computer);
 					menu = 2;
 					break;
-				case 50:								
-					menu = 1;										
-					while (menu <=9)
+				case 50:
+					menu = 1;
+					while (menu <= 9)
 					{
 						computer.CompInput();
-						list.push_back(computer);												
+						list.push_back(computer);
 						menu++;
-					}					
+					}
 					while (menu != 27)
 						menu = _getch();
 					menu = 2;
@@ -864,6 +1256,14 @@ int main()
 				_getch();
 				system("color 0F");
 			}
+			break;
+		case 54:
+		{
+			cout << "\033[2J\033[1;1H"; // Console clear and start from top left of window
+			cout << "Summary price for all computers is " << fixed << setprecision(2)<<list.GetSumm()<<"\n\n";
+			cout << "Press any button to continue...";			
+			_getch();
+		}
 			break;
 		case 27:
 			_writeStruct(list);
