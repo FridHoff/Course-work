@@ -324,12 +324,12 @@ public:
 			cout.width(25);
 			cout.fill(' ');
 			cout << ptr->proc;
-			cout.width(10);
+			cout.width(7);
 			cout.fill(' ');
-			cout << ptr->ram;
-			cout.width(15);
+			cout << ptr->ram<< " Gb";
+			cout.width(12);
 			cout.fill(' ');
-			cout << ptr->memory;
+			cout << ptr->memory<<" Gb";
 			cout.width(15);
 			cout.fill(' ');
 			cout << ptr->memory_count;
