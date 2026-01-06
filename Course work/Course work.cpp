@@ -17,118 +17,67 @@ struct Computer
 	int memory;
 	int memory_count;
 	float price;
-	//Функция ввода данных для нового ПК
-	void CompInput()
+	bool tryToInput(char* buffer, int maxLength) 
 	{
-		// Цикл для проверки корректности вводимых значений
-		while (true)
+		string input = "";
+		char ch;
+		while (true) 
 		{
-			cout << "\033[2J\033[1;1H";
-			cout << "Please enter the following data:\n";
-			cout << "Price\n";
-			if (cin >> this->price)
-				break;
-			else
-			{
-				cout << "\033[2J\033[1;1H" << "Incorrect data! Try again...";
-				_getch();
-				// Очистка поля ввода данных
-				cin.clear();
-				cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
-			}
-		}
-		// Очистка поля ввода данных
-		cin.clear();
-		cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
-		// Цикл для проверки корректности вводимых значений
-		while (true)
-		{
-			cout << "\033[2J\033[1;1H";
-			cout << "Please enter the following data:\n";
-			cout << "Brand\n";
-			if (cin.getline(this->brand, 15))
-			{
+			ch = _getch(); // Читаем символ без эха в консоль
+
+			if (ch == 27) return false; // Код Esc
+
+			if (ch == 13) 
+			{ // Код Enter
+				cout << endl;
 				break;
 			}
-			else
+
+			if (ch == 8) 
+			{ // Backspace
+				if (!input.empty()) 
+				{
+					input.pop_back();
+					cout << "\b \b"; // Удаляем символ из консоли
+				}
+			}
+			else if (input.length() < maxLength - 1) 
 			{
-				cout << "\033[2J\033[1;1H" << "Incorrect data! Try again...";
-				_getch();
-				cin.clear();
+				input += ch;
+				cout << ch; // Выводим символ
 			}
 		}
-		// Цикл для проверки корректности вводимых значений
-		while (true)
-		{
-			cout << "\033[2J\033[1;1H";
-			cout << "Please enter the following data:\n";
-			cout << "Amount of RAM\n";
-			if (cin >> this->ram)
-				break;
-			else
-			{
-				cout << "\033[2J\033[1;1H" << "Incorrect data! Try again...";
-				_getch();
-				// Очистка поля ввода данных
-				cin.clear();
-				cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
-			}
+		strcpy_s(buffer, maxLength, input.c_str());
+		return true;
+	}
+
+	// Обертка для числового ввода
+	bool tryToInputInt(int& value) 
+	{
+		char buf[20];
+		if (!tryToInput(buf, 20)) return false;
+		try {
+			value = stoi(buf);
 		}
-		// Очистка поля ввода данных
-		cin.clear();
-		cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
-		// Цикл для проверки корректности вводимых значений
-		while (true)
-		{
-			cout << "\033[2J\033[1;1H";
-			cout << "Please enter the following data:\n";
-			cout << "Processor\n";
-			if (cin.getline(this->proc, 25))
-			{
-				break;
-			}
-			else
-			{
-				cout << "\033[2J\033[1;1H" << "Incorrect data! Try again...";
-				_getch();
-				cin.clear();
-			}
-		}
-		cin.clear();
-		// Цикл для проверки корректности вводимых значений
-		while (true)
-		{
-			cout << "\033[2J\033[1;1H";
-			cout << "Please enter the following data:\n";
-			cout << "Amount of memory\n";
-			if (cin >> this->memory)
-				break;
-			else
-			{
-				cout << "\033[2J\033[1;1H" << "Incorrect data! Try again...";
-				_getch();
-				// Очистка поля ввода данных
-				cin.clear();
-				cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
-			}
-		}
-		cin.clear();
-		// Цикл для проверки корректности вводимых значений
-		while (true)
-		{
-			cout << "\033[2J\033[1;1H";
-			cout << "Please enter the following data:\n";
-			cout << "Count of memory storages\n";
-			if (cin >> this->memory_count)
-				break;
-			else
-			{
-				cout << "\033[2J\033[1;1H" << "Incorrect data! Try again...";
-				_getch();
-				cin.clear();
-				cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
-			}
-		}
+		catch (...) { value = 0; }
+		return true;
+	}
+
+	bool CompInput() 
+	{
+		cout << "\033[2J\033[1;1H"; // Очистка
+		cout << "Press ESC to cancel at any time.\n\n";
+
+		cout << "Brand: ";
+		if (!tryToInput(this->brand, 20)) return false;
+
+		cout << "Processor: ";
+		if (!tryToInput(this->proc, 25)) return false;
+
+		cout << "RAM: ";
+		if (!tryToInputInt(this->ram)) return false;
+
+		return true; // Успешно заполнено
 	}
 };
 
