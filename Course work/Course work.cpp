@@ -17,8 +17,6 @@ struct Computer
 	int memory;
 	int memory_count;
 	float price;
-	// Переменные для хранения указателей на след. и пред. записи в списке
-	Computer* prev, * next;
 	//Функция ввода данных для нового ПК
 	void CompInput()
 	{
@@ -132,18 +130,14 @@ struct Computer
 			}
 		}
 	}
-	// Попытка немного сократить код, создав конструктор для поля структуры, являющимся ссылкой на эту же структуру? wtf?
-	/*Computer(Computer data, Computer* NewPrev = NULL, Computer* NewNext = NULL)
-	{
-		strcpy(this->brand, data.brand);
-		strcpy(this->proc, data.proc);		
-		this->ram = data.ram;
-		this->memory = data.memory;
-		this->memory_count = data.memory_count;
-		this->price = data.price;
-		this->prev = NewPrev;
-		this->next = NewNext;
-	}*/
+};
+
+//Элемент списка
+struct Node
+{
+	Computer data;
+	// Переменные для хранения указателей на след. и пред. записи в списке
+	Node* prev, * next;
 };
 
 
@@ -154,7 +148,7 @@ public:
 	// Переменная для хранения кол-ва записей в списке
 	int count = 0;
 	// Начало и конец списка
-	Computer* head, * tail; 
+	Node* head, * tail; 
 public:
 	// Конструктор класса без параметров
 	List()
@@ -163,19 +157,20 @@ public:
 		tail = NULL; // Последнего тоже(
 	}
 	//Добавление элемента в начало списка
-	Computer* push_front(Computer comp) 
+	Node* push_front(Computer comp) 
 	{
 		// Выделяем память под новый элемент и записываем указатель на эту память
-		Computer* item = (Computer*)(malloc(sizeof(Computer)));
+		Node* item = (Node*)(malloc(sizeof(Node)));
 		// Передаём данные в новую запись
 		item->prev = item->next = NULL;
 		// Копирование вместо оператора =, так как он некорректно передаёт текствовые данные
-		strcpy(item->brand, comp.brand);
+		item->data = comp;
+		/*strcpy(item->brand, comp.brand);
 		strcpy(item->proc, comp.proc);
 		item->ram = comp.ram;
 		item->memory = comp.memory;
 		item->memory_count = comp.memory_count;
-		item->price = comp.price;
+		item->price = comp.price;*/
 		item->next = head;
 		if (head != NULL)
 			head->prev = item;
@@ -186,19 +181,20 @@ public:
 		return item;
 	}
 	//Добавление элемента в конец списка
-	Computer* push_back(Computer comp) 
+	Node* push_back(Computer comp) 
 	{
 		// Выделяем память под новый элемент и записываем указатель на эту память
-		Computer* item = (Computer*)(malloc(sizeof(Computer)));
+		Node* item = (Node*)(malloc(sizeof(Node)));
 		// Передаём данные в новую запись
 		item->prev = item->next = NULL;
 		// Копирование вместо оператора =, так как он некорректно передаёт текствовые данные
-		strcpy(item->brand, comp.brand);     
+		item->data = comp;
+		/*strcpy(item->brand, comp.brand);     
 		strcpy(item->proc, comp.proc);
 		item->ram = comp.ram;
 		item->memory = comp.memory;
 		item->memory_count = comp.memory_count;
-		item->price = comp.price;
+		item->price = comp.price;*/
 		item->prev = tail;
 		if (tail != NULL)
 			tail->next = item;
@@ -213,7 +209,7 @@ public:
 	{
 		if (head == NULL) return;
 		// Создаём указатель на второй элемент
-		Computer* ptr = head->next;
+		Node* ptr = head->next;
 		// Если такой имеется
 		if (ptr != NULL)
 			// То убираем из него указатель на предыдущий элемент
@@ -232,7 +228,7 @@ public:
 	{
 		if (tail == NULL) return;
 		// Создаём указатель на предпоследний элемент
-		Computer* ptr = tail->prev;
+		Node* ptr = tail->prev;
 		// Если такой имеется
 		if (ptr != NULL)
 			// То убираем из него указатель на следующий элемент
@@ -250,7 +246,7 @@ public:
 	void erase(int index)
 	{
 		// Получаем указатель на удаляемый элемент
-		Computer* ptr = getAt(index);
+		Node* ptr = getAt(index);
 		// Выходим если такого нет
 		if (ptr == NULL)
 			return;
@@ -267,8 +263,8 @@ public:
 			return;
 		}
 		// Создаём указатели на смежные к удалённому элементы
-		Computer* left = ptr->prev;
-		Computer* right = ptr->next;
+		Node* left = ptr->prev;
+		Node* right = ptr->next;
 		left->next = right;
 		right->prev = left;
 		// Освобождаем память элемента (удаляем)
@@ -313,37 +309,37 @@ public:
 		cout.fill(' ');
 		cout << "Price" << "\n";
 		// Поэлементно проходимся по списку
-		for (Computer* ptr = this->head; ptr != NULL; ptr = ptr->next)
+		for (Node* ptr = this->head; ptr != NULL; ptr = ptr->next)
 		{
 			cout.width(4);
 			cout.fill(' ');
 			cout << i << ')';
 			cout.width(20);
 			cout.fill(' ');
-			cout << ptr->brand;
+			cout << ptr->data.brand;
 			cout.width(25);
 			cout.fill(' ');
-			cout << ptr->proc;
+			cout << ptr->data.proc;
 			cout.width(7);
 			cout.fill(' ');
-			cout << ptr->ram<< " Gb";
+			cout << ptr->data.ram<< " Gb";
 			cout.width(12);
 			cout.fill(' ');
-			cout << ptr->memory<<" Gb";
+			cout << ptr->data.memory<<" Gb";
 			cout.width(15);
 			cout.fill(' ');
-			cout << ptr->memory_count;
+			cout << ptr->data.memory_count;
 			cout.width(15);
 			cout.fill(' ');
-			cout << fixed << setprecision(2) << ptr->price << "\n";
+			cout << fixed << setprecision(2) << ptr->data.price << "\n";
 			i++;
 		}
 	}
 	// Получение элемента списка по индексу
-	Computer* getAt(int index)
+	Node* getAt(int index)
 	{
 		// Создаём указатель для искомого элемента
-		Computer* ptr;
+		Node* ptr;
 		// Переменная для хранения индекса массива относительно итераций цикла
 		int i = 0;
 		// Если искомый элемент во второй половине списка то поиск начнётся с конца, на случай большого кол-ва записей
@@ -376,33 +372,34 @@ public:
 		return ptr;
 	}
 	// Получение элемента списка по индексу через оператор []
-	Computer* operator [] (int index) {
+	Node* operator [] (int index) {
 		return getAt(index);
 	}
 	// Добавление элемента по индексу
-	Computer* insert(int index, Computer data)
+	Node* insert(int index, Computer comp)
 	{
 		// Записываем элемент, находящийся на месте нового 
-		Computer* right = getAt(index);
+		Node* right = getAt(index);
 		// Если такого нет, 
 		if (right == NULL)
 			// то всавляем в конец списка
-			return push_back(data);
+			return push_back(comp);
 		// Записываем элемент перед текущим
-		Computer* left = right->prev;
+		Node* left = right->prev;
 		// Если такого нет, 
 		if (left == NULL)
 			// то вставляем в начало списка
-			return push_front(data);
+			return push_front(comp);
 		// Выделяем память под новый элемент и записываем указатель на эту память
-		Computer* ptr = (Computer*)malloc(sizeof(Computer));	
+		Node* ptr = (Node*)malloc(sizeof(Node));	
 		// Передаём данные в новую запись
-			strcpy(ptr->brand, data.brand);
+			/*strcpy(ptr->brand, data.brand);
 			strcpy(ptr->proc, data.proc);
 			ptr->ram = data.ram;
 			ptr->memory = data.memory;
 			ptr->memory_count = data.memory_count;
-			ptr->price = data.price;
+			ptr->price = data.price;*/
+		ptr->data = comp;
 			// Меняем местами указатели
 		ptr->prev = left;
 		ptr->next = right;
@@ -412,19 +409,20 @@ public:
 		return ptr;
 	}
 	// Функция для рокировки элементов
-	void swap(Computer* first, Computer* second)
+	void swap(Node* first, Node* second)
 	{
 		// Выделяем память под временный элемент и записываем указатель на эту память		
-		Computer* temp = (Computer*)(malloc(sizeof(Computer)));
+		Computer temp = Computer(first->data);
 		// Передаём в него данные
-		strcpy(temp->brand, first->brand);
+		/*strcpy(temp->brand, first->brand);
 		strcpy(temp->proc, first->proc);
 		temp->ram = first->ram;
 		temp->memory = first->memory;
 		temp->memory_count = first->memory_count;
-		temp->price = first->price;
-
-		strcpy(first->brand, second->brand);
+		temp->price = first->price;*/		
+		first->data = second->data;
+		second->data = temp;
+		/*strcpy(first->brand, second->brand);
 		strcpy(first->proc, second->proc);
 		first->ram = second->ram;
 		first->memory = second->memory;
@@ -436,9 +434,9 @@ public:
 		second->ram = temp->ram;
 		second->memory = temp->memory;
 		second->memory_count = temp->memory_count;
-		second->price = temp->price;
+		second->price = temp->price;*/
 		// Освобождаем ранее выделенную память
-		free(temp);
+		//free(temp);
 	}
 	// Функция получения суммы цены всех компьютеров в списке
 	float GetSumm()
@@ -446,9 +444,9 @@ public:
 		// Переменная для записи суммы
 		float sum=0;
 		// Поэлементно проходим список
-		for (Computer* ptr = this->head; ptr != NULL; ptr = ptr->next)		
+		for (Node* ptr = this->head; ptr != NULL; ptr = ptr->next)		
 			// Добавляем цену текущего пк к сумме
-			sum += ptr->price;		
+			sum += ptr->data.price;		
 		// Возвращаем сумму
 		return sum;
 	}
@@ -460,12 +458,12 @@ List search(List& list, string s)
 	List result;
 	int i = 0;
 	// Поэлементно проходим список
-	for (Computer* ptr = list.head; ptr != NULL; ptr = ptr->next)
+	for (Node* ptr = list.head; ptr != NULL; ptr = ptr->next)
 	{
 		// Сравниваем результаты выполнения функции поиска из библиотеки для работы со строками
-		if (((((string)(ptr->brand))).find(s) != string::npos) || ((string)(ptr->proc)).find(s) != string::npos)
+		if (((((string)(ptr->data.brand))).find(s) != string::npos) || ((string)(ptr->data.proc)).find(s) != string::npos)
 		{
-			result.push_back(*list.getAt(i));
+			result.push_back(list.getAt(i)->data);
 		}
 		i++;
 	}
@@ -478,46 +476,46 @@ List search(List& list, float input)
 	List result;
 	int i = 0;
 	// Поэлементно проходим список
-	for (Computer* ptr = list.head; ptr != NULL; ptr = ptr->next)
+	for (Node* ptr = list.head; ptr != NULL; ptr = ptr->next)
 	{
 		// Сравниваем данные текущего элемента с введёнными
-		if ((ptr->ram) == input || ptr->memory == input || ptr->memory_count == input || ptr->price==input)
+		if ((ptr->data.ram) == input || ptr->data.memory == input || ptr->data.memory_count == input || ptr->data.price==input)
 		{
-			result.push_back(*list.getAt(i));
+			result.push_back(list.getAt(i)->data);
 		}
 		i++;
 	}
 	return result;
 }
 // Фильтр по числовым полям
-List filter(List& list, bool(*func)(Computer*, Computer*), float item)
+List filter(List& list, bool(*func)(Computer, Computer), float item)
 {
 	// Инициализируем список для вывода результатов поиска
 	List result;
 	int i = 0;
-	Computer* temp = (Computer*)(malloc(sizeof(Computer)));
-	temp->memory = item;
-	temp->memory_count = item;
-	temp->ram = item;
-	temp->price = item;
+	Computer temp;
+	temp.memory = item;
+	temp.memory_count = item;
+	temp.ram = item;
+	temp.price = item;
 	// Поэлементно проходим список
-	for (Computer* ptr = list.head; ptr != NULL; ptr = ptr->next)
+	for (Node* ptr = list.head; ptr != NULL; ptr = ptr->next)
 	{
 		// Для сравнения с искомыми данными используем функции сравнения определённых полей
-		if (func(ptr, temp))
+		if (func(ptr->data, temp))
 		{
-			result.push_back(*list.getAt(i));
+			result.push_back(list.getAt(i)->data);
 		}
 		i++;
 	}
-	free(temp);
+	//free(temp);
 	return result;
 }
 
 //Чтение структуры из файла
 void _readStruct(List& list)
 {
-	Computer* computer = (Computer*)malloc(sizeof(Computer));
+	Node* computer = (Node*)malloc(sizeof(Node));
 	// Переменная для работы с файлом
 	FILE* file; 
 	// Переменная для обозначения конца файла
@@ -536,7 +534,7 @@ void _readStruct(List& list)
 			// Считываем из файла 1 структуру размера Computer			
 			fread(computer, sizeof(Computer), 1, file); 
 			// Добавляем в список прочитанную структуру
-			list.push_back(*computer);
+			list.push_back(computer->data);
 			i += sizeof(Computer);
 		}
 		// Закрываем файл
@@ -551,7 +549,7 @@ void _writeStruct(List list)
 	// Переменная для работы с файлом
 	FILE* f; 
 	f = fopen("data.bin", "wb");
-	for (Computer* ptr = list.head; ptr != NULL; ptr = ptr->next)
+	for (Node* ptr = list.head; ptr != NULL; ptr = ptr->next)
 	{
 		// Записываем в файл		
 		fwrite(ptr, sizeof(Computer), 1, f); 
@@ -560,72 +558,72 @@ void _writeStruct(List list)
 	fclose(f); 
 }
 // Сравнение определённых полей структуры для сортровки по возрастанию
-bool AscByBrand(Computer* a, Computer* b)
+bool AscByBrand(Computer a, Computer b)
 {
-	if (strcmp(a->brand, b->brand) <= 0)
+	if (strcmp(a.brand, b.brand) <= 0)
 		return true;
 	else
 		return false;
 }
-bool AscByProc(Computer* a, Computer* b)
+bool AscByProc(Computer a, Computer b)
 {
-	if (strcmp(a->proc, b->proc) <= 0)
+	if (strcmp(a.proc, b.proc) <= 0)
 		return true;
 	else
 		return false;
 }
-bool AscByRam(Computer* a, Computer* b)
+bool AscByRam(Computer a, Computer b)
 {
-	return a->ram <= b->ram;
+	return a.ram <= b.ram;
 }
-bool AscByMemory(Computer* a, Computer* b)
+bool AscByMemory(Computer a, Computer b)
 {
-	return a->memory <= b->memory;
+	return a.memory <= b.memory;
 }
-bool AscByMemory_count(Computer* a, Computer* b)
+bool AscByMemory_count(Computer a, Computer b)
 {
-	return a->memory_count <= b->memory_count;
+	return a.memory_count <= b.memory_count;
 }
-bool AscByPrice(Computer* a, Computer* b)
+bool AscByPrice(Computer a, Computer b)
 {
-	return a->price <= b->price;
+	return a.price <= b.price;
 }
 // Сравнение определённых полей структуры для сортровки по убыванию
-bool DescByBrand(Computer* a, Computer* b)
+bool DescByBrand(Computer a, Computer b)
 {
-	if (strcmp(a->brand, b->brand) >= 0)
+	if (strcmp(a.brand, b.brand) >= 0)
 		return true;
 	else
 		return false;
 }
-bool DescByProc(Computer* a, Computer* b)
+bool DescByProc(Computer a, Computer b)
 {
-	if (strcmp(a->proc, b->proc) >= 0)
+	if (strcmp(a.proc, b.proc) >= 0)
 		return true;
 	else
 		return false;
 }
-bool DescByRam(Computer* a, Computer* b)
+bool DescByRam(Computer a, Computer b)
 {
-	return a->ram >= b->ram;
+	return a.ram >= b.ram;
 }
-bool DescByMemory(Computer* a, Computer* b)
+bool DescByMemory(Computer a, Computer b)
 {
-	return a->memory >= b->memory;
+	return a.memory >= b.memory;
 }
-bool DescByMemory_count(Computer* a, Computer* b)
+bool DescByMemory_count(Computer a, Computer b)
 {
-	return a->memory_count >= b->memory_count;
+	return a.memory_count >= b.memory_count;
 }
-bool DescByPrice(Computer* a, Computer* b)
+bool DescByPrice(Computer a, Computer b)
 {
-	return a->price >= b->price;
+	return a.price >= b.price;
 }
 // Функция сортировки элементов до обозначенного
-int partition(List list, int first, int last, bool(*func)(Computer*, Computer*))
+int partition(List list, int first, int last, bool(*func)(Computer, Computer))
 {
 	// Выбираем крайнюю запись в качестве опорной точки
-	Computer* pivot = list[last];
+	Node* pivot = list[last];
 
 	// Переменная для наибольшего элемента
 	int i = (first - 1);
@@ -634,7 +632,7 @@ int partition(List list, int first, int last, bool(*func)(Computer*, Computer*))
 	// Сравнимаем при помощи функций с крайней записью
 	for (int j = first; j < last; j++)
 	{
-		if (func(list[j], pivot))
+		if (func(list[j]->data, pivot->data))
 		{
 
 			// Если найден элемент меньше
@@ -653,7 +651,7 @@ int partition(List list, int first, int last, bool(*func)(Computer*, Computer*))
 	return (i + 1);
 }
 // Функция сортировки
-void quickSort(List& list, int first, int last, bool(*func)(Computer*, Computer*))
+void quickSort(List& list, int first, int last, bool(*func)(Computer, Computer))
 {
 	// Проверка на заполненность списка
 	if (first < last)
