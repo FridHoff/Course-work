@@ -7,6 +7,7 @@
 #include <string>
 
 using namespace std;
+// Ручной-ручной ввод текста
 bool tryInputChar(char* result, int maxSize)
 {
 	int currentLen = 0;
@@ -60,7 +61,7 @@ bool tryInputChar(char* result, int maxSize)
 		}
 	}
 }
-
+// Ручной-ручной ввод нецелочисленных чисел
 bool tryInputFloat(float& result)
 {
 	string input = "";
@@ -118,7 +119,7 @@ bool tryInputFloat(float& result)
 		}
 	}
 }
-
+// Ручной-ручной ввод целочисленных чисел
 bool tryInputInt(int& result)
 {
 	string input = "";
@@ -155,8 +156,8 @@ bool tryInputInt(int& result)
 // Структура для хранения записи компьютера
 struct Computer
 {
-	char brand[20];
-	char proc[25];
+	char brand[25];
+	char proc[30];
 	int ram;
 	int memory;
 	int memory_count;
@@ -195,7 +196,6 @@ struct Computer
 		return true; // Успешно заполнено
 	}
 };
-
 //Элемент списка
 struct Node
 {
@@ -203,8 +203,6 @@ struct Node
 	// Переменные для хранения указателей на след. и пред. записи в списке
 	Node* prev, * next;
 };
-
-
 // Класс для реализации динамического двусвязного списка
 class List
 {
@@ -571,7 +569,6 @@ List filter(List& list, bool(*func)(Computer, Computer), float item)
 	//free(temp);
 	return result;
 }
-
 //Чтение структуры из файла
 void _readStruct(List& list)
 {
@@ -602,10 +599,14 @@ void _readStruct(List& list)
 		free(computer);
 	}
 }
-//Чтение структуры из текстового файла
 //Запись структуры в файл
 void _writeStruct(List list)
 {
+	if (list.count == 0) 
+	{
+		remove("data.bin"); // Если список пуст, просто удаляем файл
+		return;
+	}
 	// Переменная для работы с файлом
 	FILE* f;
 	f = fopen("data.bin", "wb");
@@ -725,14 +726,14 @@ void quickSort(List& list, int first, int last, bool(*func)(Computer, Computer))
 		quickSort(list, pi + 1, last, func);
 	}
 }
-
+// Очистка консоли
 void RefreshScreen(List& list)
 {
 	system("cls");
 	list.Show();
 	cout << "\nSummary price: " << fixed << setprecision(2) << list.GetSumm() << "\n\n";
 }
-
+// Проверка на пустоту списка
 bool CheckEmpty(List& list)
 {
 	if (list.count == 0)
@@ -743,7 +744,7 @@ bool CheckEmpty(List& list)
 	}
 	return false;
 }
-
+// Меню для фильтра
 void FilterMenu(List& list)
 {
 	List result = list;
@@ -926,7 +927,7 @@ void FilterMenu(List& list)
 }
 // Определение типа указателя на функцию сравнения
 typedef bool (*CompareFunc)(const Computer, const Computer);
-
+// Меню для сортировки
 void SortMenu(List& list)
 {
 	// Массив пар функций: {По возрастанию, По убыванию}
@@ -972,7 +973,7 @@ void SortMenu(List& list)
 		}
 	}
 }
-
+// Меню для поиска
 void SearchMenu(List& list) 
 {
 	system("cls");
@@ -1033,7 +1034,7 @@ void SearchMenu(List& list)
 		}
 	}
 }
-
+// Отрисовка заголовка
 void DrawHeader(string title, bool showTotal = false, List* list = nullptr) {
 	cout << "\033[2J\033[1;1H"; // Очистка
 	cout << "==================================================\n";
@@ -1061,17 +1062,24 @@ void HandleEmptyList(List& list)
 		char choice = _getch();
 		if (choice == 27) 
 		{
+			remove("data.bin");
 			exit(0);
 		}
 		else if (choice == '1') 
 		{
-			Computer c;
-			c.CompInput();
-			list.push_back(c);
+			Computer temp;
+			if (temp.CompInput()) 
+			{
+				list.push_back(temp); // Добавляем только если ввод прошел до конца
+				cout << "\n [OK] Computer added successfully!";
+			}
+			else {
+				cout << "\n [!] Input canceled. Record not saved.";
+			}
 		}
 	}
 }
-
+// Управление стрелками
 int SelectIndex(List& list, string title) 
 {
 	int currentPos = 1;
@@ -1093,7 +1101,7 @@ int SelectIndex(List& list, string title)
 			if (key == 80 && currentPos < list.count) 
 				currentPos++;						// Стрелка вниз
 			if (key == 72 && currentPos <= 1)
-				currentPos = list.count - 1;
+				currentPos = list.count;
 			if (key == 80 && currentPos >= list.count)
 				currentPos = 1;
 		}
@@ -1103,7 +1111,7 @@ int SelectIndex(List& list, string title)
 		else if ((key == 's' || key == 'S') && currentPos < list.count) 
 			currentPos++;
 		else if ((key == 'w' || key == 'W') && currentPos <= 1)
-			currentPos = list.count - 1;
+			currentPos = list.count;
 		else if ((key == 's' || key == 'S') && currentPos >= list.count)
 			currentPos=1;
 		// Enter
@@ -1114,6 +1122,7 @@ int SelectIndex(List& list, string title)
 			return 0;
 	}
 }
+// Импорт из текстового файла
 void LoadFromTextFile(List& list, string filename) 
 {
 	ifstream file(filename);
@@ -1138,8 +1147,8 @@ void LoadFromTextFile(List& list, string filename)
 	{
 		Computer temp;
 
-		file.getline(temp.brand, 50);
-		file.getline(temp.proc, 50);
+		file.getline(temp.brand, 25);
+		file.getline(temp.proc, 30);
 
 		// Считываем числа
 		file >> temp.ram;
@@ -1150,7 +1159,8 @@ void LoadFromTextFile(List& list, string filename)
 		// Считываем остаток строки после последнего числа, чтобы подготовиться к следующему getline
 		file.ignore(numeric_limits<streamsize>::max(), '\n');
 
-		if (file.fail()) break; // Если данные закончились раньше времени
+		if (file.fail()) 
+			break; // Если данные закончились раньше времени
 
 		list.push_back(temp);
 	}
@@ -1212,9 +1222,15 @@ int main()
 			char addChoice = _getch();
 			if (addChoice == '1') 
 			{
-				Computer c;
-				c.CompInput();
-				list.push_back(c);
+				Computer temp;
+				if (temp.CompInput()) 
+				{
+					list.push_back(temp); // Добавляем только если ввод прошел до конца
+					cout << "\n [OK] Computer added successfully!";
+				}
+				else {
+					cout << "\n [!] Input canceled. Record not saved.";
+				}
 			}
 			else if (addChoice == '2') 
 			{
@@ -1244,9 +1260,9 @@ int main()
 			if (idx > 0) 
 			{
 				// Добавим подтверждение для безопасности
-				cout << "\n [!] Are you sure you want to delete record #" << idx << "? (Y/N): ";
+				cout << "\n [!] Are you sure you want to delete record #" << idx << "? Press Enter to confirm";
 				char confirm = _getch();
-				if (toupper(confirm) == 'Y') 
+				if (confirm == 13) 
 				{
 					list.erase(idx - 1);
 					cout << "\n [OK] Deleted.";
@@ -1265,8 +1281,8 @@ int main()
 			DrawHeader("WARNING: DESTRUCTIVE ACTION");
 			system("color 0C"); // Красный текст
 			cout << "\n [!] Are you sure you want to delete ALL data?\n";
-			cout << " Press 'Y' to confirm, any other key to cancel.\n";
-			if (toupper(_getch()) == 'Y') 
+			cout << " Press Enter to confirm, any other key to cancel.\n";
+			if (_getch() == 13) 
 			{
 				list.ClearList();
 				remove("data.bin");

@@ -1,0 +1,181 @@
+30
+Asus ROG Strix
+Intel Core i9-13980HX
+32
+2048
+2
+3499.99
+MacBook Pro 16
+Apple M3 Max
+64
+1000
+1
+4200.00
+Lenovo Legion 5
+AMD Ryzen 7 7840H
+16
+512
+1
+1250.50
+HP Victus 15
+Intel Core i5-12500H
+8
+512
+1
+799.00
+MSI Katana GF66
+Intel Core i7-12650H
+16
+1000
+1
+1100.00
+Acer Predator Helios
+Intel Core i9-13900HX
+32
+2048
+2
+2100.00
+Dell XPS 13
+Intel Core i7-1354U
+16
+512
+1
+1450.00
+Gigabyte G5
+Intel Core i5-12500H
+16
+512
+1
+850.00
+Razer Blade 15
+Intel Core i7-13800H
+16
+1000
+1
+2800.00
+Microsoft Surface 5
+Intel Core i5-1235U
+8
+256
+1
+999.00
+Samsung Galaxy Book
+Intel Core i7-1360P
+16
+512
+1
+1350.00
+Alienware m18
+AMD Ryzen 9 7945HX
+64
+4096
+2
+4500.00
+Huawei MateBook X
+Intel Core i7-1360P
+16
+1000
+1
+1600.00
+Asus Zenbook 14
+AMD Ryzen 5 7530U
+8
+512
+1
+750.00
+LG Gram 17
+Intel Core i7-1360P
+16
+1000
+1
+1700.00
+MSI Stealth 14
+Intel Core i7-13700H
+16
+1000
+1
+2300.00
+HP Pavilion Aero
+AMD Ryzen 7 7735U
+16
+512
+1
+820.00
+Acer Swift Go
+Intel Core i5-13500H
+8
+512
+1
+650.00
+Lenovo Yoga 7i
+Intel Core i7-1355U
+16
+512
+1
+1150.00
+MacBook Air 13
+Apple M2
+8
+256
+1
+1099.00
+Dell Inspiron 15
+Intel Core i3-1215U
+8
+256
+1
+450.00
+Asus TUF Dash
+Intel Core i7-12650H
+16
+512
+1
+950.00
+Gigabyte Aero 16
+Intel Core i9-13900H
+32
+2048
+1
+2999.00
+HP Omen 17
+Intel Core i7-13700HX
+16
+1000
+1
+1850.00
+MSI Titan GT77
+Intel Core i9-13980HX
+128
+4096
+3
+5200.00
+Acer Aspire 5
+AMD Ryzen 5 5500U
+12
+512
+1
+550.00
+Lenovo ThinkPad X1
+Intel Core i7-1365U
+32
+1000
+1
+2100.00
+Fujitsu Lifebook
+Intel Core i5-1235U
+8
+256
+1
+1200.00
+Panasonic Toughbook
+Intel Core i5-1145G7
+16
+512
+1
+3500.00
+Framework Laptop
+Intel Core i7-1370P
+32
+1000
+1
+1600.00
