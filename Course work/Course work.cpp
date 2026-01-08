@@ -341,7 +341,7 @@ public:
 		count = 0;
 	}
 	//Вывод списка на экран	
-	void Show(int highlightIndex = -1) // -1 означает, что ничего не подсвечиваем
+	void Show(int highlightIndex = -1, int sortColumn = -1, bool isAscending = true)
 	{
 		if (this->head == NULL) 
 		{
@@ -349,48 +349,57 @@ public:
 			return;
 		}
 
-		// ANSI коды для цветов
 		const string RESET = "\033[0m";
-		const string HIGHLIGHT = "\033[1;30;47m"; // Черный текст на белом фоне (инверсия)
+		const string HIGHLIGHT = "\033[1;30;47m";
 
-		// Шапка таблицы
+		// Символы стрелок
+		string up = " \x18";   
+		string down = " \x19"; 
+
+		// Функция-помощник для отрисовки стрелки у нужного столбца
+		auto getArrow = [&](int colIndex) 
+			{
+			if (sortColumn != colIndex) 
+				return string("");
+			return isAscending ? up : down;
+			};
+
+		// Печать шапки с динамическими стрелками
 		cout << left << setw(4) << "ID"
-			<< setw(20) << "Manufacturer"
-			<< setw(20) << "Processor"
-			<< right << setw(8) << "RAM"
-			<< setw(12) << "Disk"
-			<< setw(10) << "Count"
-			<< setw(12) << "Price" << "\n";
+			<< setw(20) << ("Manufacturer" + getArrow(0))
+			<< setw(20) << ("Processor" + getArrow(1))
+			<< right << setw(10) << ("RAM" + getArrow(2))
+			<< setw(14) << ("Disk" + getArrow(3))
+			<< setw(12) << ("Count" + getArrow(4))
+			<< setw(14) << ("Price" + getArrow(5)) << "\n";
 
-		cout << string(86, '-') << "\n";
+		cout << string(94, '-') << "\n";
 
 		int i = 1;
 		for (Node* ptr = this->head; ptr != NULL; ptr = ptr->next)
 		{
-			// Если текущий индекс совпадает с переданным, включаем подсветку
-			if (i == highlightIndex) cout << HIGHLIGHT;
+			if (i == highlightIndex) 
+				cout << HIGHLIGHT;
 
-			cout << left << setw(3) << i << ")";
+			string indexStr = to_string(i) + ")";
+			cout << left << setw(4) << indexStr;
 
-			// Текстовые поля с обрезкой
 			string b = ptr->data.brand;
 			string p = ptr->data.proc;
 			cout << left << setw(20) << (b.length() > 19 ? b.substr(0, 16) + "..." : b);
 			cout << left << setw(20) << (p.length() > 19 ? p.substr(0, 16) + "..." : p);
 
-			// Числовые поля
-			cout << right << setw(5) << ptr->data.ram << " GB";
-			cout << right << setw(9) << ptr->data.memory << " GB";
-			cout << right << setw(10) << ptr->data.memory_count;
-			cout << right << setw(12) << fixed << setprecision(2) << ptr->data.price;
+			cout << right << setw(7) << ptr->data.ram << " GB";
+			cout << right << setw(11) << ptr->data.memory << " GB";
+			cout << right << setw(12) << ptr->data.memory_count;
+			cout << right << setw(14) << fixed << setprecision(2) << ptr->data.price;
 
-			// Выключаем подсветку и переходим на новую строку
-			if (i == highlightIndex) cout << RESET;
+			if (i == highlightIndex) 
+				cout << RESET;
 			cout << "\n";
-
 			i++;
 		}
-		cout << string(86, '=') << "\n";
+		cout << string(94, '=') << "\n";
 	}
 	// Получение элемента списка по индексу
 	Node* getAt(int index)
@@ -599,6 +608,53 @@ void _readStruct(List& list)
 		free(computer);
 	}
 }
+// Импорт из текстового файла
+void LoadFromTextFile(List& list, string filename)
+{
+	ifstream file(filename);
+	if (!file.is_open())
+	{
+		cout << "\n [!] Error: Could not open file " << filename << endl;
+		_getch();
+		return;
+	}
+
+	int count;
+	if (!(file >> count))
+	{
+		cout << "\n [!] Error: Invalid file format (count missing)" << endl;
+		return;
+	}
+
+	// Очищаем буфер после считывания числа, чтобы getline не считал пустую строку
+	file.ignore(numeric_limits<streamsize>::max(), '\n');
+
+	for (int i = 0; i < count; i++)
+	{
+		Computer temp;
+
+		file.getline(temp.brand, 25);
+		file.getline(temp.proc, 30);
+
+		// Считываем числа
+		file >> temp.ram;
+		file >> temp.memory;
+		file >> temp.memory_count;
+		file >> temp.price;
+
+		// Считываем остаток строки после последнего числа, чтобы подготовиться к следующему getline
+		file.ignore(numeric_limits<streamsize>::max(), '\n');
+
+		list.push_back(temp);
+
+		if (file.fail())
+			break; // Если данные закончились раньше времени
+	}
+
+	file.close();
+	cout << "\n [OK] Successfully imported " << count << " computers from " << filename;
+	_getch();
+}
 //Запись структуры в файл
 void _writeStruct(List list)
 {
@@ -727,10 +783,10 @@ void quickSort(List& list, int first, int last, bool(*func)(Computer, Computer))
 	}
 }
 // Очистка консоли
-void RefreshScreen(List& list)
+void RefreshScreen(List& list, int highlightIndex = -1, int sortColumn = -1, bool isAscending = true)
 {
 	system("cls");
-	list.Show();
+	list.Show(highlightIndex, sortColumn, isAscending);
 	cout << "\nSummary price: " << fixed << setprecision(2) << list.GetSumm() << "\n\n";
 }
 // Проверка на пустоту списка
@@ -930,6 +986,8 @@ typedef bool (*CompareFunc)(const Computer, const Computer);
 // Меню для сортировки
 void SortMenu(List& list)
 {
+	int currentSortCol = -1;
+	bool asc = true;
 	// Массив пар функций: {По возрастанию, По убыванию}
 	struct SortPair
 	{
@@ -951,19 +1009,23 @@ void SortMenu(List& list)
 	int flag = 0; // 0 - ASC, 1 - DESC
 	char key = 0;
 
-	while (key != 27) { // 27 - ESC
-		RefreshScreen(list);
+	while (key != 27) 
+	{ // 27 - ESC
+		RefreshScreen(list, -1, currentSortCol, asc);
 		cout << "\nSort by ... (Current order: " << (flag == 0 ? "[A-Z / 0-9]" : "[Z-A / 9-0]") << ")\n\n";
 		for (int i = 0; i < 6; ++i)
 		{
 			cout << i + 1 << "." << options[i].name << "\n";
 		}
 		cout << "ESC. Back\n";
+		
 		key = _getch();
 		// Преобразуем символ в индекс (от '1'..'6' до 0..5)
 		int index = key - '1';
 		if (index >= 0 && index < 6)
 		{
+			currentSortCol = index; // Индекс для стрелок в заголовке
+			asc = !asc;         // Меняем направление стрелок в заголовке
 			// Выбираем нужную функцию из массива на основе флага
 			CompareFunc selectedSort = (flag == 0) ? options[index].asc : options[index].desc;
 			// Вызываем сортировку один раз для всех случаев
@@ -1036,7 +1098,7 @@ void SearchMenu(List& list)
 }
 // Отрисовка заголовка
 void DrawHeader(string title, bool showTotal = false, List* list = nullptr) {
-	cout << "\033[2J\033[1;1H"; // Очистка
+	system("cls"); // Очистка
 	cout << "==================================================\n";
 	cout << "  " << title << "\n";
 	cout << "==================================================\n";
@@ -1067,14 +1129,27 @@ void HandleEmptyList(List& list)
 		}
 		else if (choice == '1') 
 		{
-			Computer temp;
-			if (temp.CompInput()) 
+			DrawHeader("ADD COMPUTER");
+			cout << " 1. Manual input\n";
+			cout << " 2. Import from text file (data.txt)\n"; // Наш новый пункт
+			cout << " ESC. Back\n";
+
+			char addChoice = _getch();
+			if (addChoice == '1')
 			{
-				list.push_back(temp); // Добавляем только если ввод прошел до конца
-				cout << "\n [OK] Computer added successfully!";
+				Computer temp;
+				if (temp.CompInput())
+				{
+					list.push_back(temp); // Добавляем только если ввод прошел до конца
+					cout << "\n [OK] Computer added successfully!";
+				}
+				else {
+					cout << "\n [!] Input canceled. Record not saved.";
+				}
 			}
-			else {
-				cout << "\n [!] Input canceled. Record not saved.";
+			else if (addChoice == '2')
+			{
+				LoadFromTextFile(list, "data.txt");
 			}
 		}
 	}
@@ -1122,53 +1197,7 @@ int SelectIndex(List& list, string title)
 			return 0;
 	}
 }
-// Импорт из текстового файла
-void LoadFromTextFile(List& list, string filename) 
-{
-	ifstream file(filename);
-	if (!file.is_open()) 
-	{
-		cout << "\n [!] Error: Could not open file " << filename << endl;
-		_getch();
-		return;
-	}
 
-	int count;
-	if (!(file >> count)) 
-	{
-		cout << "\n [!] Error: Invalid file format (count missing)" << endl;
-		return;
-	}
-
-	// Очищаем буфер после считывания числа, чтобы getline не считал пустую строку
-	file.ignore(numeric_limits<streamsize>::max(), '\n');
-
-	for (int i = 0; i < count; i++) 
-	{
-		Computer temp;
-
-		file.getline(temp.brand, 25);
-		file.getline(temp.proc, 30);
-
-		// Считываем числа
-		file >> temp.ram;
-		file >> temp.memory;
-		file >> temp.memory_count;
-		file >> temp.price;
-
-		// Считываем остаток строки после последнего числа, чтобы подготовиться к следующему getline
-		file.ignore(numeric_limits<streamsize>::max(), '\n');
-
-		if (file.fail()) 
-			break; // Если данные закончились раньше времени
-
-		list.push_back(temp);
-	}
-
-	file.close();
-	cout << "\n [OK] Successfully imported " << count << " computers from " << filename;
-	_getch();
-}
 int main()
 {
 	List list;
