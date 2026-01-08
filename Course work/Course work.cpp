@@ -7,25 +7,25 @@
 #include <string>
 
 using namespace std;
-bool tryInputChar(char* result, int maxSize) 
+bool tryInputChar(char* result, int maxSize)
 {
 	int currentLen = 0;
 	wint_t ch; // Широкий тип для поддержки кириллицы
 
 	result[0] = '\0';
 
-	while (true) 
+	while (true)
 	{
 		ch = _getwch();
 
 		// Esc
-		if (ch == 27) 
+		if (ch == 27)
 			return false;
 
 		// Enter
-		if (ch == 13) 
+		if (ch == 13)
 		{
-			if (currentLen == 0) 
+			if (currentLen == 0)
 				continue;
 			cout << endl;
 			result[currentLen] = '\0';
@@ -33,9 +33,9 @@ bool tryInputChar(char* result, int maxSize)
 		}
 
 		// Backspace
-		if (ch == 8) 
+		if (ch == 8)
 		{
-			if (currentLen > 0) 
+			if (currentLen > 0)
 			{
 				currentLen--;
 				result[currentLen] = '\0';
@@ -43,14 +43,14 @@ bool tryInputChar(char* result, int maxSize)
 			}
 		}
 		// Функциональные клавиши
-		else if (ch == 0 || ch == 224 || ch == 0xE0) 
+		else if (ch == 0 || ch == 224 || ch == 0xE0)
 		{
 			_getwch(); // Пропускаем второй код
 		}
 		// Печатаемые символы
-		else if (iswprint(ch)) 
+		else if (iswprint(ch))
 		{
-			if (currentLen < maxSize - 1) 
+			if (currentLen < maxSize - 1)
 			{
 				// Преобразуем широкий символ обратно в char для записи в массив
 				result[currentLen] = (char)ch;
@@ -71,7 +71,7 @@ bool tryInputFloat(float& result)
 	{
 		ch = _getch();
 
-		if (ch == 27) 
+		if (ch == 27)
 			return false;
 
 		if (ch == 13)
@@ -79,11 +79,11 @@ bool tryInputFloat(float& result)
 			if (input.empty() || input == "." || input == "-" || input == ",")
 				continue;
 			cout << endl;
-			try 
+			try
 			{
 				result = stof(input);
 			}
-			catch (...) 
+			catch (...)
 			{
 				result = 0.0f;
 			}
@@ -93,7 +93,7 @@ bool tryInputFloat(float& result)
 		if (ch == 8) // Backspace
 		{
 			if (!input.empty())
-			{			
+			{
 				if (input.back() == '.' || input.back() == ',')
 					dotPointed = false;
 				input.pop_back();
@@ -161,9 +161,9 @@ struct Computer
 	int memory;
 	int memory_count;
 	float price;
-	
 
-	bool CompInput() 
+
+	bool CompInput()
 	{
 		cout << "\033[2J\033[1;1H"; // Очистка
 		cout << "Press ESC to cancel at any time.\n\n";
@@ -200,13 +200,13 @@ struct Node
 
 
 // Класс для реализации динамического двусвязного списка
-class List                
+class List
 {
 public:
 	// Переменная для хранения кол-ва записей в списке
 	int count = 0;
 	// Начало и конец списка
-	Node* head, * tail; 
+	Node* head, * tail;
 public:
 	// Конструктор класса без параметров
 	List()
@@ -215,7 +215,7 @@ public:
 		tail = NULL; // Последнего тоже(
 	}
 	//Добавление элемента в начало списка
-	Node* push_front(Computer comp) 
+	Node* push_front(Computer comp)
 	{
 		// Выделяем память под новый элемент и записываем указатель на эту память
 		Node* item = (Node*)(malloc(sizeof(Node)));
@@ -239,7 +239,7 @@ public:
 		return item;
 	}
 	//Добавление элемента в конец списка
-	Node* push_back(Computer comp) 
+	Node* push_back(Computer comp)
 	{
 		// Выделяем память под новый элемент и записываем указатель на эту память
 		Node* item = (Node*)(malloc(sizeof(Node)));
@@ -247,7 +247,7 @@ public:
 		item->prev = item->next = NULL;
 		// Копирование вместо оператора =, так как он некорректно передаёт текствовые данные
 		item->data = comp;
-		/*strcpy(item->brand, comp.brand);     
+		/*strcpy(item->brand, comp.brand);
 		strcpy(item->proc, comp.proc);
 		item->ram = comp.ram;
 		item->memory = comp.memory;
@@ -309,13 +309,13 @@ public:
 		if (ptr == NULL)
 			return;
 		// Если это первый элемент, то удаляем спереди
-		if (ptr->prev == NULL) 
+		if (ptr->prev == NULL)
 		{
 			pop_front();
 			return;
 		}
 		// Если последний, то сзади
-		if (ptr->next == NULL) 
+		if (ptr->next == NULL)
 		{
 			pop_back();
 			return;
@@ -326,7 +326,7 @@ public:
 		left->next = right;
 		right->prev = left;
 		// Освобождаем память элемента (удаляем)
-		free(ptr);		
+		free(ptr);
 		this->count--;
 	}
 	//Очистка списка
@@ -380,10 +380,10 @@ public:
 			cout << ptr->data.proc;
 			cout.width(7);
 			cout.fill(' ');
-			cout << ptr->data.ram<< " Gb";
+			cout << ptr->data.ram << " Gb";
 			cout.width(12);
 			cout.fill(' ');
-			cout << ptr->data.memory<<" Gb";
+			cout << ptr->data.memory << " Gb";
 			cout.width(15);
 			cout.fill(' ');
 			cout << ptr->data.memory_count;
@@ -409,8 +409,8 @@ public:
 			// Пока не нашли
 			while (i != index)
 			{
-				if (ptr == NULL)				
-					return ptr;				
+				if (ptr == NULL)
+					return ptr;
 				ptr = ptr->prev;
 				i--;
 			}
@@ -430,7 +430,7 @@ public:
 		return ptr;
 	}
 	// Получение элемента списка по индексу через оператор []
-	Node* operator [] (int index) 
+	Node* operator [] (int index)
 	{
 		return getAt(index);
 	}
@@ -450,7 +450,7 @@ public:
 			// то вставляем в начало списка
 			return push_front(comp);
 		// Выделяем память под новый элемент и записываем указатель на эту память
-		Node* ptr = (Node*)malloc(sizeof(Node));	
+		Node* ptr = (Node*)malloc(sizeof(Node));
 		// Передаём данные в новую запись
 			/*strcpy(ptr->brand, data.brand);
 			strcpy(ptr->proc, data.proc);
@@ -459,7 +459,7 @@ public:
 			ptr->memory_count = data.memory_count;
 			ptr->price = data.price;*/
 		ptr->data = comp;
-			// Меняем местами указатели
+		// Меняем местами указатели
 		ptr->prev = left;
 		ptr->next = right;
 		left->next = ptr;
@@ -478,7 +478,7 @@ public:
 		temp->ram = first->ram;
 		temp->memory = first->memory;
 		temp->memory_count = first->memory_count;
-		temp->price = first->price;*/		
+		temp->price = first->price;*/
 		first->data = second->data;
 		second->data = temp;
 		/*strcpy(first->brand, second->brand);
@@ -501,11 +501,11 @@ public:
 	float GetSumm()
 	{
 		// Переменная для записи суммы
-		float sum=0;
+		float sum = 0;
 		// Поэлементно проходим список
-		for (Node* ptr = this->head; ptr != NULL; ptr = ptr->next)		
+		for (Node* ptr = this->head; ptr != NULL; ptr = ptr->next)
 			// Добавляем цену текущего пк к сумме
-			sum += ptr->data.price;		
+			sum += ptr->data.price;
 		// Возвращаем сумму
 		return sum;
 	}
@@ -538,7 +538,7 @@ List search(List& list, float input)
 	for (Node* ptr = list.head; ptr != NULL; ptr = ptr->next)
 	{
 		// Сравниваем данные текущего элемента с введёнными
-		if ((ptr->data.ram) == input || ptr->data.memory == input || ptr->data.memory_count == input || ptr->data.price==input)
+		if ((ptr->data.ram) == input || ptr->data.memory == input || ptr->data.memory_count == input || ptr->data.price == input)
 		{
 			result.push_back(list.getAt(i)->data);
 		}
@@ -576,28 +576,28 @@ void _readStruct(List& list)
 {
 	Node* computer = (Node*)malloc(sizeof(Node));
 	// Переменная для работы с файлом
-	FILE* file; 
+	FILE* file;
 	// Переменная для обозначения конца файла
-	long i = 0, fEnd;    	
+	long i = 0, fEnd;
 	// Открываем бинарный файл для чтения 							
-	if (file = fopen("data.bin", "rb"))                                   
+	if (file = fopen("data.bin", "rb"))
 	{
 		// Перемещаем курсор в конец файла.
-		fseek(file, 0, SEEK_END); 
+		fseek(file, 0, SEEK_END);
 		// Функция выдаст конечное положнние курсора относительно начала файла в байтах.				
-		fEnd = ftell(file);					
+		fEnd = ftell(file);
 		while (i < fEnd)
 		{
 			// Перемещаемся от начала (SEEK_SET) файла на i длинн структуры
-			fseek(file, i, SEEK_SET); 
+			fseek(file, i, SEEK_SET);
 			// Считываем из файла 1 структуру размера Computer			
-			fread(computer, sizeof(Computer), 1, file); 
+			fread(computer, sizeof(Computer), 1, file);
 			// Добавляем в список прочитанную структуру
 			list.push_back(computer->data);
 			i += sizeof(Computer);
 		}
 		// Закрываем файл
-		fclose(file); 
+		fclose(file);
 		free(computer);
 	}
 }
@@ -606,15 +606,15 @@ void _readStruct(List& list)
 void _writeStruct(List list)
 {
 	// Переменная для работы с файлом
-	FILE* f; 
+	FILE* f;
 	f = fopen("data.bin", "wb");
 	for (Node* ptr = list.head; ptr != NULL; ptr = ptr->next)
 	{
 		// Записываем в файл		
-		fwrite(ptr, sizeof(Computer), 1, f); 
+		fwrite(ptr, sizeof(Computer), 1, f);
 	}
 	// Закрываем файл						
-	fclose(f); 
+	fclose(f);
 }
 // Сравнение определённых полей структуры для сортровки по возрастанию
 bool AscByBrand(Computer a, Computer b)
@@ -725,7 +725,252 @@ void quickSort(List& list, int first, int last, bool(*func)(Computer, Computer))
 	}
 }
 
+void RefreshScreen(List& list)
+{
+	system("cls");
+	list.Show();
+	cout << "\nSummary price: " << fixed << setprecision(2) << list.GetSumm() << "\n\n";
+}
 
+bool CheckEmpty(List& list)
+{
+	if (list.count == 0)
+	{
+		cout << "\nComputers not found. Press any key to return...\n";
+		_getch();
+		return true;
+	}
+	return false;
+}
+
+void FilterMenu(List& list)
+{
+	List result = list;
+	char menuChoice = 0;
+
+	while (menuChoice != 27)
+	{
+		RefreshScreen(result);
+		cout << "Filter by ...\n\n";
+		cout << "1. Manufacturer/Processor\n";
+		cout << "2. RAM\n";
+		cout << "3. Memory\n";
+		cout << "4. Memory count\n";
+		cout << "5. Price\n";
+		cout << "ESC. Back to main menu\n";
+
+		menuChoice = _getch();
+
+		switch (menuChoice)
+		{// Поиск по строке
+		case '1':
+		{
+			RefreshScreen(result);
+			cout << "Computer must include (text): ";
+			string searchStr;
+			cin >> searchStr;
+			result = search(result, searchStr);
+			if (CheckEmpty(result)) result = list;
+			break;
+		}
+		// Filter by RAM
+		case '2':
+		{
+			bool subMenu = true;
+			while (subMenu)
+			{
+				RefreshScreen(result);
+				cout << "Filter RAM:\n1. Lower than\n2. Bigger than\nESC. Cancel\n\n";
+				char subChoice = _getch();
+
+				if (subChoice == 27)
+				{
+					subMenu = false;
+				}
+				else if (subChoice == '1' || subChoice == '2') {
+					RefreshScreen(result);
+					cout << (subChoice == '1' ? "Show RAM lower than: " : "Show RAM bigger than: ");
+					int value;
+					if (tryInputInt(value))
+					{
+						if (subChoice == '1')
+							result = filter(result, AscByRam, value);
+						else
+							result = filter(result, DescByRam, value);
+
+						if (CheckEmpty(result)) result = list;
+						subMenu = false; // Выход к выбору типа фильтра
+					}
+					else
+					{
+						subMenu = false; // Нажат ESC при вводе числа
+					}
+				}
+			}
+			break;
+		}
+		// Filter by Memory
+		case '3':
+		{
+			bool subMenu = true;
+			while (subMenu)
+			{
+				RefreshScreen(result);
+				cout << "Filter memory:\n1. Lower than\n2. Bigger than\nESC. Cancel\n\n";
+				char subChoice = _getch();
+
+				if (subChoice == 27)
+				{
+					subMenu = false;
+				}
+				else if (subChoice == '1' || subChoice == '2') {
+					RefreshScreen(result);
+					cout << (subChoice == '1' ? "Show memory lower than: " : "Show memory bigger than: ");
+					int value;
+					if (tryInputInt(value))
+					{
+						if (subChoice == '1')
+							result = filter(result, AscByMemory, value);
+						else
+							result = filter(result, DescByMemory, value);
+
+						if (CheckEmpty(result)) result = list;
+						subMenu = false; // Выход к выбору типа фильтра
+					}
+					else
+					{
+						subMenu = false; // Нажат ESC при вводе числа
+					}
+				}
+			}
+			break;
+		}
+		// Filter by Memory count
+		case '4':
+		{
+			bool subMenu = true;
+			while (subMenu)
+			{
+				RefreshScreen(result);
+				cout << "Filter memory count:\n1. Lower than\n2. Bigger than\nESC. Cancel\n\n";
+				char subChoice = _getch();
+
+				if (subChoice == 27)
+				{
+					subMenu = false;
+				}
+				else if (subChoice == '1' || subChoice == '2')
+				{
+					RefreshScreen(result);
+					cout << (subChoice == '1' ? "Show memory count lower than: " : "Show memory count bigger than: ");
+					int value;
+					if (tryInputInt(value))
+					{
+						if (subChoice == '1')
+							result = filter(result, AscByMemory_count, value);
+						else
+							result = filter(result, DescByMemory_count, value);
+
+						if (CheckEmpty(result)) result = list;
+						subMenu = false; // Выход к выбору типа фильтра
+					}
+					else
+					{
+						subMenu = false; // Нажат ESC при вводе числа
+					}
+				}
+			}
+			break;
+		}
+		// Filter by Price
+		case '5':
+		{
+			bool subMenu = true;
+			while (subMenu)
+			{
+				RefreshScreen(result);
+				cout << "Filter price:\n1. Lower than\n2. Bigger than\nESC. Cancel\n\n";
+				char subChoice = _getch();
+
+				if (subChoice == 27)
+				{
+					subMenu = false;
+				}
+				else if (subChoice == '1' || subChoice == '2')
+				{
+					RefreshScreen(result);
+					cout << (subChoice == '1' ? "Show price lower than: " : "Show price bigger than: ");
+					float value;
+					if (tryInputFloat(value))
+					{
+						if (subChoice == '1')
+							result = filter(result, AscByPrice, value);
+						else
+							result = filter(result, DescByPrice, value);
+
+						if (CheckEmpty(result)) result = list;
+						subMenu = false; // Выход к выбору типа фильтра
+					}
+					else
+					{
+						subMenu = false; // Нажат ESC при вводе числа
+					}
+				}
+			}
+			break;
+		}
+
+		}
+	}
+}
+// Определение типа указателя на функцию сравнения
+typedef bool (*CompareFunc)(const Computer, const Computer);
+
+void SortMenu(List& list)
+{
+	// Массив пар функций: {По возрастанию, По убыванию}
+	struct SortPair
+	{
+		CompareFunc asc;
+		CompareFunc desc;
+		string name;
+	};
+
+	SortPair options[] =
+	{
+		{ AscByBrand,        DescByBrand,        "Manufacturer" },
+		{ AscByProc,         DescByProc,         "Processor"    },
+		{ AscByRam,          DescByRam,          "RAM"          },
+		{ AscByMemory,       DescByMemory,       "Memory"       },
+		{ AscByMemory_count, DescByMemory_count, "Memory count" },
+		{ AscByPrice,        DescByPrice,        "Price"        }
+	};
+
+	int flag = 0; // 0 - ASC, 1 - DESC
+	char key = 0;
+
+	while (key != 27) { // 27 - ESC
+		RefreshScreen(list);
+		cout << "\nSort by ... (Current order: " << (flag == 0 ? "[A-Z / 0-9]" : "[Z-A / 9-0]") << ")\n\n";
+		for (int i = 0; i < 6; ++i)
+		{
+			cout << i + 1 << "." << options[i].name << "\n";
+		}
+		cout << "ESC. Back\n";
+		key = _getch();
+		// Преобразуем символ в индекс (от '1'..'6' до 0..5)
+		int index = key - '1';
+		if (index >= 0 && index < 6)
+		{
+			// Выбираем нужную функцию из массива на основе флага
+			CompareFunc selectedSort = (flag == 0) ? options[index].asc : options[index].desc;
+			// Вызываем сортировку один раз для всех случаев
+			quickSort(list, 0, list.count - 1, selectedSort);
+			// Переключаем флаг для следующего нажатия
+			flag = (flag == 0) ? 1 : 0;
+		}
+	}
+}
 
 int main()
 {
@@ -779,7 +1024,7 @@ int main()
 		}
 		switch (menu)
 		{
-																					// SHOW LIST			
+			// SHOW LIST			
 		case 49:
 		{
 
@@ -795,8 +1040,8 @@ int main()
 				cout << "3.Filter\n";
 				switch (menu = _getch())
 				{
-																			// SEARCH
-				case 49:												
+					// SEARCH
+				case 49:
 				{
 					menu = NULL;
 					cout << "\033[2J\033[1;1H"; // Очистка консоли					
@@ -805,8 +1050,8 @@ int main()
 					cout << "2. Search by stats\n";
 					switch (_getch())
 					{
-														// Поиск по тексту
-					case 49:            
+						// Поиск по тексту
+					case 49:
 					{
 						string s;
 						// Очистка консоли									
@@ -825,15 +1070,15 @@ int main()
 						result.ClearList();
 					}
 					break;
-														// Поиск по числам
-					case 50:		
+					// Поиск по числам
+					case 50:
 					{
 						List result;
-						float s;						
-						cout << "\033[2J\033[1;1H"; 
+						float s;
+						cout << "\033[2J\033[1;1H";
 						cout << "Search for: ";
-						if(cin >> s)
-						result = search(list, s);
+						if (cin >> s)
+							result = search(list, s);
 						if (result.count != 0)
 							result.Show();
 						else
@@ -848,495 +1093,19 @@ int main()
 					}
 					break;
 				}
-																			// SORT
-				case 50:												
+				// SORT
+				case 50:
 				{
-					menu = NULL;
-					// Флаг для определения в каком порядке сортировать
-					int flag = 0;
-					while (menu != 1)
-					{
-						list.Show();
-						cout << '\n';
-						cout << "Sort by ...\n\n";
-						cout << "1.Manufacturer\n";
-						cout << "2.Processor\n";
-						cout << "3.RAM\n";
-						cout << "4.Memory\n";
-						cout << "5.Memory count\n";
-						cout << "6.Price\n";
-						switch (menu = _getch())
-						{
-									// sort by Manufacturer
-						case 49:
-						{
-
-							menu = NULL;
-							if (flag == 0)
-							{
-								quickSort(list, 0, list.count - 1, AscByBrand);
-								flag++;
-							}
-							else
-							{
-								quickSort(list, 0, list.count - 1, DescByBrand);
-								flag = 0;
-							}
-							break;
-						}
-									// sort by Processor
-						case 50:
-						{
-
-							menu = NULL;
-							if (flag == 0)
-							{
-								quickSort(list, 0, list.count - 1, AscByProc);
-								flag++;
-							}
-							else
-							{
-								quickSort(list, 0, list.count - 1, DescByProc);
-								flag = 0;
-							}
-							break;
-						}
-									// sort by RAM
-						case 51:
-						{
-
-							menu = NULL;
-							if (flag == 0)
-							{
-								quickSort(list, 0, list.count - 1, AscByRam);
-								flag++;
-							}
-							else
-							{
-								quickSort(list, 0, list.count - 1, DescByRam);
-								flag = 0;
-							}
-							break;
-						}
-									// sort by Memory
-						case 52:
-						{
-
-							menu = NULL;
-							if (flag == 0)
-							{
-								quickSort(list, 0, list.count - 1, AscByMemory);
-								flag++;
-							}
-							else
-							{
-								quickSort(list, 0, list.count - 1, DescByMemory);
-								flag = 0;
-							}
-							break;
-						}
-									// sort by Memmory_count
-						case 53:
-						{
-
-							menu = NULL;
-							if (flag == 0)
-							{
-								quickSort(list, 0, list.count - 1, AscByMemory_count);
-								flag++;
-							}
-							else
-							{
-								quickSort(list, 0, list.count - 1, DescByMemory_count);
-								flag = 0;
-							}
-							break;
-						}
-									// sort by Price
-						case 54:
-						{
-
-							menu = NULL;
-							if (flag == 0)
-							{
-								quickSort(list, 0, list.count - 1, AscByPrice);
-								flag++;
-							}
-							else
-							{
-								quickSort(list, 0, list.count - 1, DescByPrice);
-								flag = 0;
-							}
-							break;
-						}
-									// Выход в предыдущее меню (27 — Esc)
-						case 27:
-							menu = 1;
-							break;
-						}
-					}
-				break;
-				}
-																			// FILTER
-				case 51:													
-				{
-					menu = NULL;
-					List result;
-					result.ClearList();
-					result = list;
-					while (menu != 1)
-					{
-						result.Show();
-						cout << '\n';
-						cout << "Filter by ...\n\n";
-						cout << "1.Manufacturer/Processor\n";						
-						cout << "2.RAM\n";
-						cout << "3.Memory\n";
-						cout << "4.Memory count\n";
-						cout << "5.Price\n\n";						
-						cout << "Summary price for these computers is " << fixed << setprecision(2) << result.GetSumm() << "\n\n";												
-						switch (menu = _getch())
-						{
-									// filter by Text
-						case 49:						
-						{
-							string input;
-							result.Show();
-							cout << '\n';
-							cout << "Computer must include:\n\n";
-							cin >> input;
-							result = search(result, input);
-							if (result.count != 0)
-								menu = NULL;
-							else
-							{
-								cout << "\033[2J\033[1;1H";
-								cout << "Computers not found\n\n";
-								_getch();
-								menu = 1;
-							}
-							break;
-						}										
-									// filter by Ram
-						case 50:
-						{
-							while (menu != 2)
-							{
-							float input = NULL;
-								result.Show();
-								cout << '\n';
-								cout << "Ram must be\n\n";
-								cout << "1.Lower than:\n";
-								cout << "2.Bigger than:\n";
-								switch (_getch())
-								{
-								case 49:
-								{
-									result.Show();
-									cout << '\n';
-									cout << "Ram must be\n\n";
-									cout << "Lower than: ";
-									if(cin >> input)
-									result = filter(result, AscByRam, input);
-									else
-									{
-										cout << "\033[2J\033[1;1H";
-										cout << "Computers not found\n\n";
-										_getch();
-										menu = 1;
-									}
-									if (result.count != 0)
-										menu = NULL;
-									else
-									{
-										cout << "\033[2J\033[1;1H";
-										cout << "Computers not found\n\n";
-										_getch();
-										menu = 1;					
-									}
-								}
-								break;
-								case 50:
-								{
-									result.Show();
-									cout << '\n';
-									cout << "Ram must be\n\n";
-									cout << "Bigger than: ";
-									if(cin >> input)
-									result = filter(result, DescByRam, input);
-									else
-									{
-										cout << "\033[2J\033[1;1H";
-										cout << "Computers not found\n\n";
-										_getch();
-										menu = 1;
-									}
-									if (result.count != 0)
-										menu = NULL;
-									else
-									{
-										cout << "\033[2J\033[1;1H";
-										cout << "Computers not found\n\n";
-										_getch();
-										menu = 1;									
-									}
-								}
-								break;
-								// Выход в предыдущее меню (27 — Esc)
-								case 27:
-								{
-									menu = 2;
-									break;
-								}						
-								}
-								cin.clear();
-								cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
-								if (menu == 1)
-									break;
-							}
-						}
-									// filter by Memory
-						case 51:
-						{
-							while (menu != 2)
-							{
-								float input = NULL;
-								result.Show();
-								cout << '\n';
-								cout << "Memory must be\n\n";
-								cout << "1.Lower than:\n";
-								cout << "2.Bigger than:\n";
-								switch (_getch())
-								{
-								case 49:
-								{
-									result.Show();
-									cout << '\n';
-									cout << "Ram must be\n\n";
-									cout << "Lower than: ";
-									if (cin >> input)
-										result = filter(result, AscByMemory, input);
-									else
-									{
-										cout << "\033[2J\033[1;1H";
-										cout << "Computers not found\n\n";
-										_getch();
-										menu = 1;
-									}
-									if (result.count != 0)
-										menu = NULL;
-									else
-									{
-										cout << "\033[2J\033[1;1H";
-										cout << "Computers not found\n\n";
-										_getch();
-										menu = 1;
-									}
-								}
-								break;
-								case 50:
-								{
-									result.Show();
-									cout << '\n';
-									cout << "Ram must be\n\n";
-									cout << "Bigger than: ";
-									if (cin >> input)
-										result = filter(result, DescByMemory, input);
-									else
-									{
-										cout << "\033[2J\033[1;1H";
-										cout << "Computers not found\n\n";
-										_getch();
-										menu = 1;
-									}
-									if (result.count != 0)
-										menu = NULL;
-									else
-									{
-										cout << "\033[2J\033[1;1H";
-										cout << "Computers not found\n\n";
-										_getch();
-										menu = 1;
-									}
-								}
-								break;
-								case 27:
-								{
-									menu = 2;
-									break;
-								}
-								}
-								cin.clear();
-								cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
-								if (menu == 1)
-									break;
-							}
-						}
-									// filter by Memory count
-						case 52:
-						{
-							while (menu != 2)
-							{
-								float input = NULL;
-								result.Show();
-								cout << '\n';
-								cout << "Memory count must be\n\n";
-								cout << "1.Lower than:\n";
-								cout << "2.Bigger than:\n";
-								switch (_getch())
-								{
-								case 49:
-								{
-									result.Show();
-									cout << '\n';
-									cout << "Ram must be\n\n";
-									cout << "Lower than: ";
-									if (cin >> input)
-										result = filter(result, AscByMemory_count, input);
-									else
-									{
-										cout << "\033[2J\033[1;1H";
-										cout << "Computers not found\n\n";
-										_getch();
-										menu = 1;
-									}
-									if (result.count != 0)
-										menu = NULL;
-									else
-									{
-										cout << "\033[2J\033[1;1H";
-										cout << "Computers not found\n\n";
-										_getch();
-										menu = 1;
-									}
-								}
-								break;
-								case 50:
-								{
-									result.Show();
-									cout << '\n';
-									cout << "Ram must be\n\n";
-									cout << "Bigger than: ";
-									if (cin >> input)
-										result = filter(result, DescByMemory_count, input);
-									else
-									{
-										cout << "\033[2J\033[1;1H";
-										cout << "Computers not found\n\n";
-										_getch();
-										menu = 1;
-									}
-									if (result.count != 0)
-										menu = NULL;
-									else
-									{
-										cout << "\033[2J\033[1;1H";
-										cout << "Computers not found\n\n";
-										_getch();
-										menu = 1;
-									}
-								}
-								break;
-								case 27:
-								{
-									menu = 2;
-									break;
-								}
-								}
-								cin.clear();
-								cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
-								if (menu == 1)
-									break;
-							}
-						}
-									// filter by Price
-						case 53:
-						{
-							while (menu != 2)
-							{
-								float input = NULL;
-								result.Show();
-								cout << '\n';
-								cout << "Price must be\n\n";
-								cout << "1. Lower than:\n";
-								cout << "2. Bigger than:\n";
-								switch (_getch())
-								{
-								case 49:
-								{
-									result.Show();
-									cout << '\n';
-									cout << "Ram must be\n\n";
-									cout << "Lower than: ";
-									if (cin >> input)
-										result = filter(result, AscByPrice, input);
-									else
-									{
-										cout << "\033[2J\033[1;1H";
-										cout << "Computers not found\n\n";
-										_getch();
-										menu = 1;
-									}
-									if (result.count != 0)
-										menu = NULL;
-									else
-									{
-										cout << "\033[2J\033[1;1H";
-										cout << "Computers not found\n\n";
-										_getch();
-										menu = 1;
-									}
-								}
-								break;
-								case 50:
-								{
-									result.Show();
-									cout << '\n';
-									cout << "Ram must be\n\n";
-									cout << "Bigger than: ";
-									if (cin >> input)
-										result = filter(result, DescByPrice, input);
-									else
-									{
-										cout << "\033[2J\033[1;1H";
-										cout << "Computers not found\n\n";
-										_getch();
-										menu = 1;
-									}
-									if (result.count != 0)
-										menu = NULL;
-									else
-									{
-										cout << "\033[2J\033[1;1H";
-										cout << "Computers not found\n\n";
-										_getch();
-										menu = 1;
-									}
-								}
-								break;
-								case 27:
-								{
-									menu = 2;
-									break;
-								}
-								}
-								cin.clear();
-								cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
-								if (menu == 1)
-									break;
-							}
-						}
-						// Выход в предыдущее меню (27 — Esc)
-						case 27:
-						{
-							menu = 1;
-							break;
-						}
-						}
-					}
+					SortMenu(list);
 					break;
 				}
-										// Выход в предыдущее меню (27 — Esc)
+				// FILTER
+				case 51:
+				{
+					FilterMenu(list);
+					break;
+				}
+				// Выход в предыдущее меню (27 — Esc)
 				case 27:
 				{
 					menu = 2;
@@ -1346,8 +1115,8 @@ int main()
 			}
 			break;
 		}
-																					// ADD
-		case 50:		
+		// ADD
+		case 50:
 		{
 			menu = NULL;
 			while (menu != 2)
@@ -1371,13 +1140,13 @@ int main()
 					menu = 2;
 					break;
 				}
-					// Добавление всех пк из буфера обмена, но копированные исключительно из текстового файла в проекте
+				// Добавление всех пк из буфера обмена, но копированные исключительно из текстового файла в проекте
 				case 50:
 				{
 					menu = 1;
 					// Запускаем цикл на количество добавляемых пк
 					while (menu <= 9)
-					{				
+					{
 						computer.CompInput();
 						list.push_back(computer);
 						menu++;
@@ -1389,7 +1158,7 @@ int main()
 					menu = 2;
 					break;
 				}
-					// Выход в предыдущее меню (27 — Esc)
+				// Выход в предыдущее меню (27 — Esc)
 				case 27:
 				{
 
@@ -1400,8 +1169,8 @@ int main()
 			}
 			break;
 		}
-																					// EDIT
-		case 51:																	
+		// EDIT
+		case 51:
 		{
 			int indexToEdit = 0;
 			while (true)
@@ -1429,8 +1198,8 @@ int main()
 			_getch();
 			break;
 		}
-																					// DELETE
-		case 52:		
+		// DELETE
+		case 52:
 		{
 			menu = NULL;
 			// Цикл для проверки вводимых значений
@@ -1460,8 +1229,8 @@ int main()
 			}
 			break;
 		}
-																					// MEGA DELETE
-		case 53:																	
+		// MEGA DELETE
+		case 53:
 		{
 			menu = NULL;
 			cout << "\033[2J\033[1;1H"; // Очистка консоли
@@ -1483,16 +1252,16 @@ int main()
 			}
 			break;
 		}
-																					// Get All Summ
+		// Get All Summ
 		case 54:
 		{
 			cout << "\033[2J\033[1;1H"; // Очистка консоли
-			cout << "Summary price for all computers is " << fixed << setprecision(2)<<list.GetSumm()<<"\n\n";
-			cout << "Press any button to continue...";			
+			cout << "Summary price for all computers is " << fixed << setprecision(2) << list.GetSumm() << "\n\n";
+			cout << "Press any button to continue...";
 			_getch();
 			break;
 		}
-													// Выход из приложения (27 — Esc)
+		// Выход из приложения (27 — Esc)
 		case 27:
 		{
 			// Сохранение внесённых изменений (запись текущего списка в файл)
