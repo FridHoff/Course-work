@@ -337,61 +337,56 @@ public:
 		count = 0;
 	}
 	//Вывод списка на экран	
-	void Show(/*int flag = 2*/)
+	void Show(int highlightIndex = -1) // -1 означает, что ничего не подсвечиваем
 	{
-		// Переменная для нумерации элементов
+		if (this->head == NULL) 
+		{
+			cout << "   [ Список пуст ]\n";
+			return;
+		}
+
+		// ANSI коды для цветов
+		const string RESET = "\033[0m";
+		const string HIGHLIGHT = "\033[1;30;47m"; // Черный текст на белом фоне (инверсия)
+
+		// Шапка таблицы
+		cout << left << setw(4) << "ID"
+			<< setw(20) << "Manufacturer"
+			<< setw(20) << "Processor"
+			<< right << setw(8) << "RAM"
+			<< setw(12) << "Disk"
+			<< setw(10) << "Count"
+			<< setw(12) << "Price" << "\n";
+
+		cout << string(86, '-') << "\n";
+
 		int i = 1;
-		// Очистка консоли
-		cout << "\033[2J\033[1;1H";
-		// Указание ширины выводимых данных
-		cout.width(4);
-		// Заполнение пустого места пробелами
-		cout.fill(' ');
-		cout << "N";
-		cout.width(20);
-		cout.fill(' ');
-		cout << "Manufacturer";
-		cout.width(25);
-		cout.fill(' ');
-		cout << "Processor";
-		cout.width(10);
-		cout.fill(' ');
-		cout << "RAM";
-		cout.width(15);
-		cout.fill(' ');
-		cout << "Memory";
-		cout.width(15);
-		cout.fill(' ');
-		cout << "Memory count";
-		cout.width(15);
-		cout.fill(' ');
-		cout << "Price" << "\n";
-		// Поэлементно проходимся по списку
 		for (Node* ptr = this->head; ptr != NULL; ptr = ptr->next)
 		{
-			cout.width(4);
-			cout.fill(' ');
-			cout << i << ')';
-			cout.width(20);
-			cout.fill(' ');
-			cout << ptr->data.brand;
-			cout.width(25);
-			cout.fill(' ');
-			cout << ptr->data.proc;
-			cout.width(7);
-			cout.fill(' ');
-			cout << ptr->data.ram << " Gb";
-			cout.width(12);
-			cout.fill(' ');
-			cout << ptr->data.memory << " Gb";
-			cout.width(15);
-			cout.fill(' ');
-			cout << ptr->data.memory_count;
-			cout.width(15);
-			cout.fill(' ');
-			cout << fixed << setprecision(2) << ptr->data.price << "\n";
+			// Если текущий индекс совпадает с переданным, включаем подсветку
+			if (i == highlightIndex) cout << HIGHLIGHT;
+
+			cout << left << setw(3) << i << ")";
+
+			// Текстовые поля с обрезкой
+			string b = ptr->data.brand;
+			string p = ptr->data.proc;
+			cout << left << setw(20) << (b.length() > 19 ? b.substr(0, 16) + "..." : b);
+			cout << left << setw(20) << (p.length() > 19 ? p.substr(0, 16) + "..." : p);
+
+			// Числовые поля
+			cout << right << setw(5) << ptr->data.ram << " GB";
+			cout << right << setw(9) << ptr->data.memory << " GB";
+			cout << right << setw(10) << ptr->data.memory_count;
+			cout << right << setw(12) << fixed << setprecision(2) << ptr->data.price;
+
+			// Выключаем подсветку и переходим на новую строку
+			if (i == highlightIndex) cout << RESET;
+			cout << "\n";
+
 			i++;
 		}
+		cout << string(86, '=') << "\n";
 	}
 	// Получение элемента списка по индексу
 	Node* getAt(int index)
@@ -972,305 +967,258 @@ void SortMenu(List& list)
 	}
 }
 
+void SearchMenu(List& list) 
+{
+	system("cls");
+	cout << "Choose search option!\n\n";
+	cout << "1. Search by name (Text)\n";
+	cout << "2. Search by stats (Number)\n";
+	cout << "ESC. Cancel\n";
+
+	char choice = _getch();
+
+	if (choice == 27) 
+		return; // Выход по ESC
+
+	if (choice == '1') 
+	{ // Поиск по тексту
+		system("cls");
+		cout << "Search for (text): ";
+		string s;
+		cin >> s;
+
+		List result = search(list, s);
+		system("cls"); // Очистка экрана
+		if (result.count != 0)
+		{
+			result.Show();
+			cout << "\nFound " << result.count << " records.";
+		}
+		else
+		{
+			cout << "Computers not found\n";
+		}
+		cout << "\nPress any key to continue...";
+		_getch();
+		result.ClearList();
+	}
+	else if (choice == '2') 
+	{ // Поиск по числу
+		system("cls");
+		cout << "Search for (number): ";
+
+		float s;
+		if (tryInputFloat(s)) 
+		{
+			List result = search(list, s);
+			system("cls"); // Очистка экрана
+			if (result.count != 0)
+			{
+				result.Show();
+				cout << "\nFound " << result.count << " records.";
+			}
+			else
+			{
+				cout << "Computers not found\n";
+			}
+			cout << "\nPress any key to continue...";
+			_getch();
+			result.ClearList();
+		}
+	}
+}
+
+void DrawHeader(string title, bool showTotal = false, List* list = nullptr) {
+	cout << "\033[2J\033[1;1H"; // Очистка
+	cout << "==================================================\n";
+	cout << "  " << title << "\n";
+	cout << "==================================================\n";
+	if (showTotal && list) 
+	{
+		cout << " Total records: " << list->count;
+		cout << " | Total Price: $" << fixed << setprecision(2) << list->GetSumm() << "\n";
+		cout << "--------------------------------------------------\n";
+	}
+}
+
+// Меню, если список пуст
+void HandleEmptyList(List& list) 
+{
+	while (list.count == 0) 
+	{
+		DrawHeader("DATABASE EMPTY");
+		cout << "\n [!] No computers found in the system.\n\n";
+		cout << " 1. Add first computer\n";
+		cout << " ESC. Exit program\n\n";
+		cout << " >> ";
+
+		char choice = _getch();
+		if (choice == 27) 
+		{
+			exit(0);
+		}
+		else if (choice == '1') 
+		{
+			Computer c;
+			c.CompInput();
+			list.push_back(c);
+		}
+	}
+}
+
+int SelectIndex(List& list, string title) 
+{
+	int currentPos = 1;
+	int key = 0;
+
+	while (true) 
+	{
+		DrawHeader(title + " (W/S - Move, ENTER - Select, ESC - Cancel)");
+		list.Show(currentPos); // Вызываем вашу новую Show с подсветкой
+
+		key = _getch();
+
+		// Обработка стрелок
+		if (key == 0 || key == 224) 
+		{
+			key = _getch();
+			if (key == 72 && currentPos > 1) 
+				currentPos--;						// Стрелка вверх
+			if (key == 80 && currentPos < list.count) 
+				currentPos++;						// Стрелка вниз
+		}
+		// Обработка W / S
+		else if ((key == 'w' || key == 'W') && currentPos > 1) 
+			currentPos--;
+		else if ((key == 's' || key == 'S') && currentPos < list.count) 
+			currentPos++;
+		// Enter
+		else if (key == 13) 
+			return currentPos;
+		// Esc
+		else if (key == 27) 
+			return 0;
+	}
+}
 int main()
 {
-	// Инициализируем список
 	List list;
-	// Инициализируем переменную для переходов по меню
-	int menu;
-	menu = NULL;
-	// Инициализируем переменную для записи компьютеров
-	Computer computer;
-	// Попытка считать данные с файла
 	_readStruct(list);
-	// Цикл для меню
-	while (menu != 27)
+
+	char menu = 0;
+
+	while (menu != 27) 
 	{
-		// Проверка на существование записей в списке
-		if (list.count == 0)
-		{
-			while (true)
-			{
-				cout << "\033[2J\033[1;1H";
-				cout << "Error 404\n\nComputers not found\n\n";
-				cout << "1.Add computer\n";
-				cout << "2.Exit\n";
-				menu = _getch();
-				if (menu == 50)
-				{
-					exit(0);
-				}
-				else if (menu == 49)
-				{
-					menu = 50;
-					break;
-				}
-			}
-		}
-		if (menu != 50)
-		{
-			// Выводим главное меню
-			cout << "\033[2J\033[1;1H"; // Очистка консоли
-			cout << "Choose option!\n\n";
-			cout << "1.Computer list\n";
-			cout << "2.Add computer\n";
-			cout << "3.Edit computer\n";
-			cout << "4.Delete computer\n";
-			cout << "5.Delete all computers\n";
-			cout << "6.Check price for all computers\n\n";
-			cout << "Press Esc to save and exit\n";
-			// Считываем нажатую клавишу
-			menu = _getch();
-		}
-		switch (menu)
-		{
-			// SHOW LIST			
-		case 49:
-		{
+		if (list.count == 0) 
+			HandleEmptyList(list);
 
-			while (menu != 2)
+		DrawHeader("MAIN MENU", true, &list);
+		cout << " 1. View & Manage List (Search/Sort/Filter)\n";
+		cout << " 2. Add New Computer\n";
+		cout << " 3. Edit Record\n";
+		cout << " 4. Delete Record\n";
+		cout << " 5. Clear Database [!]\n";
+		cout << "\n ESC. Save and Exit\n";
+		cout << "==================================================\n";
+
+		menu = _getch();
+
+		switch (menu) 
+		{
+		case '1': 
+		{ // MAin menu
+			char sub = 0;
+			while (sub != 27)
 			{
-				menu = NULL;
-				cout << "\033[2J\033[1;1H"; // Очистка консоли
+				DrawHeader("COMPUTER LIST", true, &list);
 				list.Show();
-				cout << '\n';
-				cout << "Choose option!\n\n";
-				cout << "1.Search\n";
-				cout << "2.Sort\n";
-				cout << "3.Filter\n";
-				switch (menu = _getch())
-				{
-					// SEARCH
-				case 49:
-				{
-					menu = NULL;
-					cout << "\033[2J\033[1;1H"; // Очистка консоли					
-					cout << "Choose option!\n\n";
-					cout << "1. Search by name\n";
-					cout << "2. Search by stats\n";
-					switch (_getch())
-					{
-						// Поиск по тексту
-					case 49:
-					{
-						string s;
-						// Очистка консоли									
-						cout << "\033[2J\033[1;1H";
-						cout << "Search for: ";
-						cin >> s;
-						List result = search(list, s);
-						if (result.count != 0)
-							result.Show();
-						else
-						{
-							cout << "\033[2J\033[1;1H";
-							cout << "Computers not found\n\n";
-						}
-						_getch();
-						result.ClearList();
-					}
-					break;
-					// Поиск по числам
-					case 50:
-					{
-						List result;
-						float s;
-						cout << "\033[2J\033[1;1H";
-						cout << "Search for: ";
-						if (cin >> s)
-							result = search(list, s);
-						if (result.count != 0)
-							result.Show();
-						else
-						{
-							cout << "\033[2J\033[1;1H";
-							cout << "Computers not found\n\n";
-						}
-						_getch();
-						result.ClearList();
-					}
-					break;
-					}
-					break;
-				}
-				// SORT
-				case 50:
-				{
+				cout << "\n [1] Search | [2] Sort | [3] Filter | [ESC] Back\n";
+				sub = _getch();
+				if (sub == '1') 
+					SearchMenu(list);
+				if (sub == '2') 
 					SortMenu(list);
-					break;
-				}
-				// FILTER
-				case 51:
-				{
+				if (sub == '3')
 					FilterMenu(list);
-					break;
-				}
-				// Выход в предыдущее меню (27 — Esc)
-				case 27:
-				{
-					menu = 2;
-					break;
-				}
-				}
 			}
 			break;
 		}
-		// ADD
-		case 50:
-		{
-			menu = NULL;
-			while (menu != 2)
-			{
-				menu = NULL;
-				cout << "\033[2J\033[1;1H"; // Очистка консоли
-				cout << '\n';
-				cout << "Choose option!\n\n";
-				cout << "1.One\n";
-				cout << "2.Many\n";
-				switch (menu = _getch())
-				{
-					// Добавление одного пк вручную
-				case 49:
-				{
-					// Вызываем функцию добавления и вручную вводим все данные
-					computer.CompInput();
-					// Записанный пк добавляем в список
-					list.push_back(computer);
-					// Возвращаемся в главное меню
-					menu = 2;
-					break;
-				}
-				// Добавление всех пк из буфера обмена, но копированные исключительно из текстового файла в проекте
-				case 50:
-				{
-					menu = 1;
-					// Запускаем цикл на количество добавляемых пк
-					while (menu <= 9)
-					{
-						computer.CompInput();
-						list.push_back(computer);
-						menu++;
-					}
-					// Очищаем строку ввода от излишков данных
-					while (menu != 27)
-						menu = _getch();
-					// Выходим в гланое меню
-					menu = 2;
-					break;
-				}
-				// Выход в предыдущее меню (27 — Esc)
-				case 27:
-				{
 
-					menu = 2;
-					break;
-				}
+		case '2': 
+		{ // ADD
+			DrawHeader("ADD COMPUTER");
+			cout << " 1. Manual input\n 2. Quick add (10 dummy records)\n ESC. Back\n";
+			char addChoice = _getch();
+			if (addChoice == '1') 
+			{
+				Computer c;
+				c.CompInput();
+				list.push_back(c);
+			}
+			else if (addChoice == '2') 
+			{
+				for (int i = 0; i < 10; i++) 
+				{
+					Computer c; 
+					c.CompInput(); 
+					list.push_back(c);
 				}
 			}
 			break;
 		}
-		// EDIT
-		case 51:
-		{
-			int indexToEdit = 0;
-			while (true)
+
+		case '3': 
+		{ // EDIT
+			int idx = SelectIndex(list, "EDIT MODE"); // Интерактивный выбор
+			if (idx > 0) 
 			{
-				list.Show();
-				cout << "Enter the number of the computer you want to edit (1-" << list.count << "):" << endl;
-				if (tryInputInt(indexToEdit))
-				{
-					if (indexToEdit > 0 && indexToEdit <= list.count)
-					{
-						break;
-					}
-				}
-				// Если ввод не удался или индекс вне диапазона
-				cout << "\033[2J\033[1;1H"; // Очистка экрана
-				cout << "Incorrect data! Enter a number between 1 and " << list.count << ". Try again..." << endl;
-				_getch();
-			}
-			Computer tempComputer;
-			cout << "Enter new data for computer #" << indexToEdit << ":" << endl;
-			tempComputer.CompInput(); // Ввод новых данных
-			list[indexToEdit - 1]->data = tempComputer;
-			cout << "\nRecord updated successfully!" << endl;
-			cout << "Press any button to exit...";
-			_getch();
-			break;
-		}
-		// DELETE
-		case 52:
-		{
-			menu = NULL;
-			// Цикл для проверки вводимых значений
-			while (true)
-			{
-				list.Show();
-				cout << "Enter which computer you want to destroy:\n";
-				if ((cin >> menu && menu <= list.count && menu > 0))
-				{
-					break;
-				}
-				else
-				{
-					cout << "\033[2J\033[1;1H" << "Incorrect data! Try again...";
-					_getch();
-					cin.clear();
-					cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
-				}
-			}
-			if (menu != 27)
-			{
-				list.erase(menu - 1);
-				menu = NULL;
-				cout << "\033[2J\033[1;1H"; // Очистка консоли
-				cout << "Press any button to exit...";
+				DrawHeader("EDITING COMPUTER #" + to_string(idx));
+				Computer temp;
+				temp.CompInput(); // Ввод новых данных
+				list[idx - 1]->data = temp;
+				cout << "\n [OK] Data updated successfully! Press any key...";
 				_getch();
 			}
 			break;
 		}
-		// MEGA DELETE
-		case 53:
-		{
-			menu = NULL;
-			cout << "\033[2J\033[1;1H"; // Очистка консоли
-			cout << "Are you sure about this?\n\n";
-			cout << "1.Yes\n";
-			cout << "2.No\n\n";
-			if (_getch() == 49)
+
+		case '4': { // DELETE
+			int idx = SelectIndex(list, "DELETE MODE"); // Интерактивный выбор
+			if (idx > 0) {
+				// Добавим подтверждение для безопасности
+				cout << "\n [!] Are you sure you want to delete record #" << idx << "? (Y/N): ";
+				char confirm = _getch();
+				if (toupper(confirm) == 'Y') {
+					list.erase(idx - 1);
+					cout << "\n [OK] Deleted.";
+				}
+				else {
+					cout << "\n [X] Canceled.";
+				}
+				_getch();
+			}
+			break;
+		}
+
+		case '5': 
+		{ // MEGA DELETE
+			DrawHeader("WARNING: DESTRUCTIVE ACTION");
+			system("color 0C"); // Красный текст
+			cout << "\n [!] Are you sure you want to delete ALL data?\n";
+			cout << " Press 'Y' to confirm, any other key to cancel.\n";
+			if (toupper(_getch()) == 'Y') 
 			{
 				list.ClearList();
 				remove("data.bin");
-				cout << "\033[2J\033[1;1H"; // Очистка консоли
-				// Изменение цвета текста в консоли для лучше передачи неотвратимости сделанного
-				system("color 0C");
-				cout << "All computers was deleted\n\n";
-				cout << "Press any button to exit...";
+				cout << "\n [!!!] Database wiped.";
 				_getch();
-				// Возврат к стандартному цвету
-				system("color 0F");
 			}
-			break;
-		}
-		// Get All Summ
-		case 54:
-		{
-			cout << "\033[2J\033[1;1H"; // Очистка консоли
-			cout << "Summary price for all computers is " << fixed << setprecision(2) << list.GetSumm() << "\n\n";
-			cout << "Press any button to continue...";
-			_getch();
-			break;
-		}
-		// Выход из приложения (27 — Esc)
-		case 27:
-		{
-			// Сохранение внесённых изменений (запись текущего списка в файл)
-			_writeStruct(list);
-			// Очистка списка
-			list.ClearList();
-			exit(0);
+			system("color 0F"); // Возврат цвета
 			break;
 		}
 		}
 	}
+	_writeStruct(list);
+	list.ClearList();
+	return 0;
 }
