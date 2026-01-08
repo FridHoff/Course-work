@@ -169,22 +169,28 @@ struct Computer
 		cout << "Press ESC to cancel at any time.\n\n";
 
 		cout << "Brand: ";
-		if (!tryInputChar(this->brand, 20)) return false;
+		if (!tryInputChar(this->brand, 20)) 
+			return false;
 
 		cout << "Processor: ";
-		if (!tryInputChar(this->proc, 25)) return false;
+		if (!tryInputChar(this->proc, 25)) 
+			return false;
 
 		cout << "RAM: ";
-		if (!tryInputInt(this->ram)) return false;
+		if (!tryInputInt(this->ram)) 
+			return false;
 
 		cout << "Memory: ";
-		if (!tryInputInt(this->memory)) return false;
+		if (!tryInputInt(this->memory)) 
+			return false;
 
 		cout << "Memory count: ";
-		if (!tryInputInt(this->memory_count)) return false;
+		if (!tryInputInt(this->memory_count)) 
+			return false;
 
 		cout << "Price: ";
-		if (!tryInputFloat(this->price)) return false;
+		if (!tryInputFloat(this->price)) 
+			return false;
 
 		return true; // Успешно заполнено
 	}
@@ -1086,12 +1092,20 @@ int SelectIndex(List& list, string title)
 				currentPos--;						// Стрелка вверх
 			if (key == 80 && currentPos < list.count) 
 				currentPos++;						// Стрелка вниз
+			if (key == 72 && currentPos <= 1)
+				currentPos = list.count - 1;
+			if (key == 80 && currentPos >= list.count)
+				currentPos = 1;
 		}
 		// Обработка W / S
 		else if ((key == 'w' || key == 'W') && currentPos > 1) 
 			currentPos--;
 		else if ((key == 's' || key == 'S') && currentPos < list.count) 
 			currentPos++;
+		else if ((key == 'w' || key == 'W') && currentPos <= 1)
+			currentPos = list.count - 1;
+		else if ((key == 's' || key == 'S') && currentPos >= list.count)
+			currentPos=1;
 		// Enter
 		else if (key == 13) 
 			return currentPos;
@@ -1099,6 +1113,51 @@ int SelectIndex(List& list, string title)
 		else if (key == 27) 
 			return 0;
 	}
+}
+void LoadFromTextFile(List& list, string filename) 
+{
+	ifstream file(filename);
+	if (!file.is_open()) 
+	{
+		cout << "\n [!] Error: Could not open file " << filename << endl;
+		_getch();
+		return;
+	}
+
+	int count;
+	if (!(file >> count)) 
+	{
+		cout << "\n [!] Error: Invalid file format (count missing)" << endl;
+		return;
+	}
+
+	// Очищаем буфер после считывания числа, чтобы getline не считал пустую строку
+	file.ignore(numeric_limits<streamsize>::max(), '\n');
+
+	for (int i = 0; i < count; i++) 
+	{
+		Computer temp;
+
+		file.getline(temp.brand, 50);
+		file.getline(temp.proc, 50);
+
+		// Считываем числа
+		file >> temp.ram;
+		file >> temp.memory;
+		file >> temp.memory_count;
+		file >> temp.price;
+
+		// Считываем остаток строки после последнего числа, чтобы подготовиться к следующему getline
+		file.ignore(numeric_limits<streamsize>::max(), '\n');
+
+		if (file.fail()) break; // Если данные закончились раньше времени
+
+		list.push_back(temp);
+	}
+
+	file.close();
+	cout << "\n [OK] Successfully imported " << count << " computers from " << filename;
+	_getch();
 }
 int main()
 {
@@ -1144,10 +1203,12 @@ int main()
 			break;
 		}
 
-		case '2': 
-		{ // ADD
+		case '2': { // Меню добавления
 			DrawHeader("ADD COMPUTER");
-			cout << " 1. Manual input\n 2. Quick add (10 dummy records)\n ESC. Back\n";
+			cout << " 1. Manual input\n";
+			cout << " 2. Import from text file (data.txt)\n"; // Наш новый пункт
+			cout << " ESC. Back\n";
+
 			char addChoice = _getch();
 			if (addChoice == '1') 
 			{
@@ -1157,12 +1218,7 @@ int main()
 			}
 			else if (addChoice == '2') 
 			{
-				for (int i = 0; i < 10; i++) 
-				{
-					Computer c; 
-					c.CompInput(); 
-					list.push_back(c);
-				}
+				LoadFromTextFile(list, "data.txt");
 			}
 			break;
 		}
@@ -1182,17 +1238,21 @@ int main()
 			break;
 		}
 
-		case '4': { // DELETE
+		case '4': 
+		{ // DELETE
 			int idx = SelectIndex(list, "DELETE MODE"); // Интерактивный выбор
-			if (idx > 0) {
+			if (idx > 0) 
+			{
 				// Добавим подтверждение для безопасности
 				cout << "\n [!] Are you sure you want to delete record #" << idx << "? (Y/N): ";
 				char confirm = _getch();
-				if (toupper(confirm) == 'Y') {
+				if (toupper(confirm) == 'Y') 
+				{
 					list.erase(idx - 1);
 					cout << "\n [OK] Deleted.";
 				}
-				else {
+				else 
+				{
 					cout << "\n [X] Canceled.";
 				}
 				_getch();
