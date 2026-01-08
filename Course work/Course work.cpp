@@ -7,7 +7,151 @@
 #include <string>
 
 using namespace std;
+bool tryInputChar(char* result, int maxSize) 
+{
+	int currentLen = 0;
+	wint_t ch; // Широкий тип для поддержки кириллицы
 
+	result[0] = '\0';
+
+	while (true) 
+	{
+		ch = _getwch();
+
+		// Esc
+		if (ch == 27) 
+			return false;
+
+		// Enter
+		if (ch == 13) 
+		{
+			if (currentLen == 0) 
+				continue;
+			cout << endl;
+			result[currentLen] = '\0';
+			return true;
+		}
+
+		// Backspace
+		if (ch == 8) 
+		{
+			if (currentLen > 0) 
+			{
+				currentLen--;
+				result[currentLen] = '\0';
+				cout << "\b \b";
+			}
+		}
+		// Функциональные клавиши
+		else if (ch == 0 || ch == 224 || ch == 0xE0) 
+		{
+			_getwch(); // Пропускаем второй код
+		}
+		// Печатаемые символы
+		else if (iswprint(ch)) 
+		{
+			if (currentLen < maxSize - 1) 
+			{
+				// Преобразуем широкий символ обратно в char для записи в массив
+				result[currentLen] = (char)ch;
+				currentLen++;
+				printf("%c", (char)ch);
+			}
+		}
+	}
+}
+
+bool tryInputFloat(float& result)
+{
+	string input = "";
+	char ch;
+	bool dotPointed = false;
+
+	while (true)
+	{
+		ch = _getch();
+
+		if (ch == 27) 
+			return false;
+
+		if (ch == 13)
+		{
+			if (input.empty() || input == "." || input == "-" || input == ",")
+				continue;
+			cout << endl;
+			try 
+			{
+				result = stof(input);
+			}
+			catch (...) 
+			{
+				result = 0.0f;
+			}
+			return true;
+		}
+
+		if (ch == 8) // Backspace
+		{
+			if (!input.empty())
+			{			
+				if (input.back() == '.' || input.back() == ',')
+					dotPointed = false;
+				input.pop_back();
+				cout << "\b \b";
+			}
+		}
+		else if ((ch == '.' || ch == ',') && !dotPointed)
+		{
+			input += ',';
+			dotPointed = true;
+			cout << ch;
+		}
+		else if (isdigit(ch))
+		{
+			input += ch;
+			cout << ch;
+		}
+		else if (ch == '-' && input.empty())
+		{
+			input += ch;
+			cout << ch;
+		}
+	}
+}
+
+bool tryInputInt(int& result)
+{
+	string input = "";
+	char ch;
+	while (true)
+	{
+		ch = _getch();
+		if (ch == 27)
+			return false;
+		if (ch == 13)
+		{ // Enter
+			if (input.empty())
+				continue; // Не даем нажать Enter на пустой строке
+			cout << endl;
+			result = stoi(input); // Преобразуем накопленную строку в число
+			return true;
+		}
+
+		if (ch == 8)
+		{ // Backspace
+			if (!input.empty())
+			{
+				input.pop_back();
+				cout << "\b \b"; // Удаляем символ из консоли визуально
+			}
+		}
+		else if (isdigit(ch))
+		{ // Проверяем, что нажата цифра
+			input += ch;
+			cout << ch; // Выводим цифру на экран
+		}
+	}
+}
 // Структура для хранения записи компьютера
 struct Computer
 {
@@ -17,51 +161,7 @@ struct Computer
 	int memory;
 	int memory_count;
 	float price;
-	bool tryToInput(char* buffer, int maxLength) 
-	{
-		string input = "";
-		char ch;
-		while (true) 
-		{
-			ch = _getch(); // Читаем символ без эха в консоль
-
-			if (ch == 27) return false; // Код Esc
-
-			if (ch == 13) 
-			{ // Код Enter
-				cout << endl;
-				break;
-			}
-
-			if (ch == 8) 
-			{ // Backspace
-				if (!input.empty()) 
-				{
-					input.pop_back();
-					cout << "\b \b"; // Удаляем символ из консоли
-				}
-			}
-			else if (input.length() < maxLength - 1) 
-			{
-				input += ch;
-				cout << ch; // Выводим символ
-			}
-		}
-		strcpy_s(buffer, maxLength, input.c_str());
-		return true;
-	}
-
-	// Обертка для числового ввода
-	bool tryToInputInt(int& value) 
-	{
-		char buf[20];
-		if (!tryToInput(buf, 20)) return false;
-		try {
-			value = stoi(buf);
-		}
-		catch (...) { value = 0; }
-		return true;
-	}
+	
 
 	bool CompInput() 
 	{
@@ -69,13 +169,22 @@ struct Computer
 		cout << "Press ESC to cancel at any time.\n\n";
 
 		cout << "Brand: ";
-		if (!tryToInput(this->brand, 20)) return false;
+		if (!tryInputChar(this->brand, 20)) return false;
 
 		cout << "Processor: ";
-		if (!tryToInput(this->proc, 25)) return false;
+		if (!tryInputChar(this->proc, 25)) return false;
 
 		cout << "RAM: ";
-		if (!tryToInputInt(this->ram)) return false;
+		if (!tryInputInt(this->ram)) return false;
+
+		cout << "Memory: ";
+		if (!tryInputInt(this->memory)) return false;
+
+		cout << "Memory count: ";
+		if (!tryInputInt(this->memory_count)) return false;
+
+		cout << "Price: ";
+		if (!tryInputFloat(this->price)) return false;
 
 		return true; // Успешно заполнено
 	}
@@ -321,7 +430,8 @@ public:
 		return ptr;
 	}
 	// Получение элемента списка по индексу через оператор []
-	Node* operator [] (int index) {
+	Node* operator [] (int index) 
+	{
 		return getAt(index);
 	}
 	// Добавление элемента по индексу
@@ -1293,30 +1403,28 @@ int main()
 																					// EDIT
 		case 51:																	
 		{
-			menu = NULL;
-			// Цикл для проверки ввода
+			int indexToEdit = 0;
 			while (true)
 			{
 				list.Show();
-				cout << "Enter which computer you want to edit:\n";
-				// Проверка на корректность введённых данных
-				if (cin >> menu && menu <= list.count && menu > 0)
-					break;
-				else
+				cout << "Enter the number of the computer you want to edit (1-" << list.count << "):" << endl;
+				if (tryInputInt(indexToEdit))
 				{
-					cout << "\033[2J\033[1;1H" << "Incorrect data! Try again...";
-					_getch();
-					cin.clear();
-					cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+					if (indexToEdit > 0 && indexToEdit <= list.count)
+					{
+						break;
+					}
 				}
+				// Если ввод не удался или индекс вне диапазона
+				cout << "\033[2J\033[1;1H"; // Очистка экрана
+				cout << "Incorrect data! Enter a number between 1 and " << list.count << ". Try again..." << endl;
+				_getch();
 			}
-			// Вводим новые данные для выбранной записи
-			computer.CompInput();
-			// Удаляем выбранную запись
-			list.erase(menu - 1);
-			// Вставляем на её место новую
-			list.insert(menu - 1, computer);
-			menu = NULL;
+			Computer tempComputer;
+			cout << "Enter new data for computer #" << indexToEdit << ":" << endl;
+			tempComputer.CompInput(); // Ввод новых данных
+			list[indexToEdit - 1]->data = tempComputer;
+			cout << "\nRecord updated successfully!" << endl;
 			cout << "Press any button to exit...";
 			_getch();
 			break;
