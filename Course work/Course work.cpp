@@ -5,58 +5,77 @@
 #include <stdio.h> 
 #include <fstream> // For files
 #include <string>
+#include <windows.h>
 
 using namespace std;
-// Ручной-ручной ввод текста
-bool tryInputChar(char* result, int maxSize)
+// Подсчёт визуальных символов в UTF-8 строке (для корректного отображения названий на русском)
+int utf8_length(const string& str) 
 {
-	int currentLen = 0;
-	wint_t ch; // Широкий тип для поддержки кириллицы
+	int count = 0;
+	for (int i = 0; i < str.length(); i++) {
+		// В UTF-8 каждый новый символ начинается не с битов 10xxxxxx
+		if ((str[i] & 0xC0) != 0x80) count++;
+	}
+	return count;
+}
+// Заполнение строки пробелами (для корректного отображения названий на русском)
+string pad_right(string str, int width) 
+{
+	int len = utf8_length(str);
+	if (len >= width) 
+		return str;
+	return str + string(width - len, ' ');
+}
+// Ручной-ручной ввод текста
+bool tryInputChar(char* result, int maxSize) 
+{
+	setlocale(LC_ALL, "ru_RU.UTF-8");
+	SetConsoleCP(CP_UTF8);
+	SetConsoleOutputCP(CP_UTF8);
 
+	int currentLen = 0;
+	wint_t ch;
 	result[0] = '\0';
 
-	while (true)
+	while (true) 
 	{
 		ch = _getwch();
 
-		// Esc
-		if (ch == 27)
-			return false;
-
-		// Enter
+		if (ch == 27) return false; // Esc
 		if (ch == 13)
-		{
-			if (currentLen == 0)
+		{ // Enter
+			if (currentLen == 0) 
 				continue;
-			cout << endl;
+			wcout << endl;
 			result[currentLen] = '\0';
 			return true;
 		}
-
-		// Backspace
-		if (ch == 8)
-		{
-			if (currentLen > 0)
+		if (ch == 8) 
+		{ // Backspace
+			if (currentLen > 0) 
 			{
 				currentLen--;
-				result[currentLen] = '\0';
+				// Логика удаления символа (учитывая, что в UTF-8 символ может занимать > 1 байта, 
+				// здесь проще работать с wstring, если result - это char*)
 				cout << "\b \b";
 			}
 		}
-		// Функциональные клавиши
-		else if (ch == 0 || ch == 224 || ch == 0xE0)
+		else if (ch == 0 || ch == 224 || ch == 0xE0) 
 		{
-			_getwch(); // Пропускаем второй код
+			_getwch(); // Пропуск функциональных клавиш
 		}
-		// Печатаемые символы
-		else if (iswprint(ch))
+		else if (iswprint(ch)) 
 		{
-			if (currentLen < maxSize - 1)
+			if (currentLen < maxSize - 1) 
 			{
-				// Преобразуем широкий символ обратно в char для записи в массив
-				result[currentLen] = (char)ch;
-				currentLen++;
-				printf("%c", (char)ch);
+				wchar_t wch = (wchar_t)ch;
+				// Конвертируем широкий символ (UTF-16) в многобайтовую строку (UTF-8)
+				int len = WideCharToMultiByte(CP_UTF8, 0, &wch, 1, &result[currentLen], maxSize - currentLen, NULL, NULL);
+				if (len > 0) 
+				{
+					putwchar(ch); // Отображение при вводе (уже работает)
+					currentLen += len;
+				}
 			}
 		}
 	}
@@ -353,8 +372,8 @@ public:
 		const string HIGHLIGHT = "\033[1;30;47m";
 
 		// Символы стрелок
-		string up = " \x18";   
-		string down = " \x19"; 
+		string up = " \xE2\x86\x91";   
+		string down = " \xE2\x86\x93"; 
 
 		// Функция-помощник для отрисовки стрелки у нужного столбца
 		auto getArrow = [&](int colIndex) 
@@ -386,8 +405,10 @@ public:
 
 			string b = ptr->data.brand;
 			string p = ptr->data.proc;
-			cout << left << setw(20) << (b.length() > 19 ? b.substr(0, 16) + "..." : b);
-			cout << left << setw(20) << (p.length() > 19 ? p.substr(0, 16) + "..." : p);
+			if (utf8_length(b) > 19) b = b.substr(0, 16) + "...";
+			if (utf8_length(p) > 19) p = p.substr(0, 16) + "...";
+			cout << left << pad_right(b, 20);
+			cout << left << pad_right(p, 20);
 
 			cout << right << setw(7) << ptr->data.ram << " GB";
 			cout << right << setw(11) << ptr->data.memory << " GB";
@@ -627,7 +648,7 @@ void LoadFromTextFile(List& list, string filename)
 	}
 
 	// Очищаем буфер после считывания числа, чтобы getline не считал пустую строку
-	file.ignore(numeric_limits<streamsize>::max(), '\n');
+	file.ignore((numeric_limits<streamsize>::max)(), '\n');
 
 	for (int i = 0; i < count; i++)
 	{
@@ -643,7 +664,7 @@ void LoadFromTextFile(List& list, string filename)
 		file >> temp.price;
 
 		// Считываем остаток строки после последнего числа, чтобы подготовиться к следующему getline
-		file.ignore(numeric_limits<streamsize>::max(), '\n');
+		file.ignore((numeric_limits<streamsize>::max)(), '\n');
 
 		list.push_back(temp);
 
@@ -1199,6 +1220,9 @@ int SelectIndex(List& list, string title)
 
 int main()
 {
+	SetConsoleCP(CP_UTF8);
+	SetConsoleOutputCP(CP_UTF8);
+	setlocale(LC_ALL, ".UTF8");
 	List list;
 	_readStruct(list);
 
