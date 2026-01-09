@@ -1109,7 +1109,6 @@ void DrawHeader(string title, bool showTotal = false, List* list = nullptr) {
 		cout << "--------------------------------------------------\n";
 	}
 }
-
 // Меню, если список пуст
 void HandleEmptyList(List& list) 
 {
@@ -1223,8 +1222,9 @@ int main()
 
 		switch (menu) 
 		{
+		// MAin menu
 		case '1': 
-		{ // MAin menu
+		{ 
 			char sub = 0;
 			while (sub != 27)
 			{
@@ -1241,8 +1241,8 @@ int main()
 			}
 			break;
 		}
-
-		case '2': { // Меню добавления
+		// ADD
+		case '2': { 
 			DrawHeader("ADD COMPUTER");
 			cout << " 1. Manual input\n";
 			cout << " 2. Import from text file (data.txt)\n"; // Наш новый пункт
@@ -1267,9 +1267,9 @@ int main()
 			}
 			break;
 		}
-
+		// EDIT
 		case '3': 
-		{ // EDIT
+		{ 
 			int idx = SelectIndex(list, "EDIT MODE"); // Интерактивный выбор
 			if (idx > 0) 
 			{
@@ -1282,9 +1282,9 @@ int main()
 			}
 			break;
 		}
-
+		// DELETE
 		case '4': 
-		{ // DELETE
+		{ 
 			int idx = SelectIndex(list, "DELETE MODE"); // Интерактивный выбор
 			if (idx > 0) 
 			{
@@ -1304,9 +1304,9 @@ int main()
 			}
 			break;
 		}
-
+		// MEGA DELETE
 		case '5': 
-		{ // MEGA DELETE
+		{
 			DrawHeader("WARNING: DESTRUCTIVE ACTION");
 			system("color 0C"); // Красный текст
 			cout << "\n [!] Are you sure you want to delete ALL data?\n";
