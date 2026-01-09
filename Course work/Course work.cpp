@@ -131,11 +131,6 @@ bool tryInputFloat(float& result)
 			input += ch;
 			cout << ch;
 		}
-		else if (ch == '-' && input.empty())
-		{
-			input += ch;
-			cout << ch;
-		}
 	}
 }
 // Ручной-ручной ввод целочисленных чисел
