@@ -9,7 +9,7 @@
 
 using namespace std;
 // Подсчёт визуальных символов в UTF-8 строке (для корректного отображения названий на русском)
-int utf8_length(const string& str) 
+int utf8Length(const string& str)
 {
 	int count = 0;
 	for (int i = 0; i < str.length(); i++) {
@@ -19,15 +19,15 @@ int utf8_length(const string& str)
 	return count;
 }
 // Заполнение строки пробелами (для корректного отображения названий на русском)
-string pad_right(string str, int width) 
+string padRight(string str, int width)
 {
-	int len = utf8_length(str);
-	if (len >= width) 
+	int len = utf8Length(str);
+	if (len >= width)
 		return str;
 	return str + string(width - len, ' ');
 }
 // Ручной-ручной ввод текста
-bool tryInputChar(char* result, int maxSize) 
+bool tryInputChar(char* result, int maxSize)
 {
 	setlocale(LC_ALL, "ru_RU.UTF-8");
 	SetConsoleCP(CP_UTF8);
@@ -37,43 +37,46 @@ bool tryInputChar(char* result, int maxSize)
 	wint_t ch;
 	result[0] = '\0';
 
-	while (true) 
+	while (true)
 	{
 		ch = _getwch();
-
-		if (ch == 27) return false; // Esc
+		// Esc
+		if (ch == 27)
+			return false;
+		// Enter
 		if (ch == 13)
-		{ // Enter
-			if (currentLen == 0) 
+		{
+			if (currentLen == 0)
 				continue;
 			wcout << endl;
 			result[currentLen] = '\0';
 			return true;
 		}
-		if (ch == 8) 
-		{ // Backspace
-			if (currentLen > 0) 
+		// Backspace
+		if (ch == 8)
+		{
+			if (currentLen > 0)
 			{
 				currentLen--;
-				// Логика удаления символа (учитывая, что в UTF-8 символ может занимать > 1 байта, 
-				// здесь проще работать с wstring, если result - это char*)
 				cout << "\b \b";
 			}
 		}
-		else if (ch == 0 || ch == 224 || ch == 0xE0) 
+		// Пропуск функциональных клавиш
+		else if (ch == 0 || ch == 224 || ch == 0xE0)
 		{
-			_getwch(); // Пропуск функциональных клавиш
+			_getwch();
 		}
-		else if (iswprint(ch)) 
+		else if (iswprint(ch))
 		{
-			if (currentLen < maxSize - 1) 
+			if (currentLen < maxSize - 1)
 			{
 				wchar_t wch = (wchar_t)ch;
 				// Конвертируем широкий символ (UTF-16) в многобайтовую строку (UTF-8)
 				int len = WideCharToMultiByte(CP_UTF8, 0, &wch, 1, &result[currentLen], maxSize - currentLen, NULL, NULL);
-				if (len > 0) 
+				if (len > 0)
 				{
-					putwchar(ch); // Отображение при вводе (уже работает)
+					// Отображение при вводе
+					putwchar(ch);
 					currentLen += len;
 				}
 			}
@@ -109,8 +112,8 @@ bool tryInputFloat(float& result)
 			}
 			return true;
 		}
-
-		if (ch == 8) // Backspace
+		// Backspace
+		if (ch == 8)
 		{
 			if (!input.empty())
 			{
@@ -144,70 +147,73 @@ bool tryInputInt(int& result)
 		if (ch == 27)
 			return false;
 		if (ch == 13)
-		{ // Enter
+		{
+			// Не даем нажать Enter на пустой строке
 			if (input.empty())
-				continue; // Не даем нажать Enter на пустой строке
+				continue;
 			cout << endl;
-			result = stoi(input); // Преобразуем накопленную строку в число
+			// Преобразуем накопленную строку в число
+			result = stoi(input);
 			return true;
 		}
-
+		// Backspace
 		if (ch == 8)
-		{ // Backspace
+		{
 			if (!input.empty())
 			{
 				input.pop_back();
-				cout << "\b \b"; // Удаляем символ из консоли визуально
+				cout << "\b \b";
 			}
 		}
+		// Проверяем, что нажата цифра
 		else if (isdigit(ch))
-		{ // Проверяем, что нажата цифра
+		{
 			input += ch;
-			cout << ch; // Выводим цифру на экран
+			cout << ch;
 		}
 	}
 }
 // Структура для хранения записи компьютера
 struct Computer
 {
-	char brand[25];
 	char proc[30];
+	char brand[25];
+	float price;
 	int ram;
 	int memory;
 	int memory_count;
-	float price;
 
 
 	bool CompInput()
 	{
-		cout << "\033[2J\033[1;1H"; // Очистка
+		cout << "\033[2J\033[1;1H";
 		cout << "Press ESC to cancel at any time.\n\n";
 
 		cout << "Brand: ";
-		if (!tryInputChar(this->brand, 20)) 
+		if (!tryInputChar(this->brand, 20))
 			return false;
 
 		cout << "Processor: ";
-		if (!tryInputChar(this->proc, 25)) 
+		if (!tryInputChar(this->proc, 25))
 			return false;
 
 		cout << "RAM: ";
-		if (!tryInputInt(this->ram)) 
+		if (!tryInputInt(this->ram))
 			return false;
 
 		cout << "Memory: ";
-		if (!tryInputInt(this->memory)) 
+		if (!tryInputInt(this->memory))
 			return false;
 
 		cout << "Memory count: ";
-		if (!tryInputInt(this->memory_count)) 
+		if (!tryInputInt(this->memory_count))
 			return false;
 
 		cout << "Price: ";
-		if (!tryInputFloat(this->price)) 
+		if (!tryInputFloat(this->price))
 			return false;
 
-		return true; // Успешно заполнено
+		return true;
 	}
 };
 //Элемент списка
@@ -229,11 +235,13 @@ public:
 	// Конструктор класса без параметров
 	List()
 	{
-		head = NULL; // Первого элемента пока нет
-		tail = NULL; // Последнего тоже(
+		// Первого элемента пока нет
+		head = NULL;
+		// Последнего тоже(
+		tail = NULL;
 	}
 	//Добавление элемента в начало списка
-	Node* push_front(Computer comp)
+	Node* pushFront(Computer comp)
 	{
 		// Выделяем память под новый элемент и записываем указатель на эту память
 		Node* item = (Node*)(malloc(sizeof(Node)));
@@ -241,12 +249,6 @@ public:
 		item->prev = item->next = NULL;
 		// Копирование вместо оператора =, так как он некорректно передаёт текствовые данные
 		item->data = comp;
-		/*strcpy(item->brand, comp.brand);
-		strcpy(item->proc, comp.proc);
-		item->ram = comp.ram;
-		item->memory = comp.memory;
-		item->memory_count = comp.memory_count;
-		item->price = comp.price;*/
 		item->next = head;
 		if (head != NULL)
 			head->prev = item;
@@ -257,7 +259,7 @@ public:
 		return item;
 	}
 	//Добавление элемента в конец списка
-	Node* push_back(Computer comp)
+	Node* pushBack(Computer comp)
 	{
 		// Выделяем память под новый элемент и записываем указатель на эту память
 		Node* item = (Node*)(malloc(sizeof(Node)));
@@ -265,12 +267,6 @@ public:
 		item->prev = item->next = NULL;
 		// Копирование вместо оператора =, так как он некорректно передаёт текствовые данные
 		item->data = comp;
-		/*strcpy(item->brand, comp.brand);
-		strcpy(item->proc, comp.proc);
-		item->ram = comp.ram;
-		item->memory = comp.memory;
-		item->memory_count = comp.memory_count;
-		item->price = comp.price;*/
 		item->prev = tail;
 		if (tail != NULL)
 			tail->next = item;
@@ -281,7 +277,7 @@ public:
 		return item;
 	}
 	//Удаление первого элемента списка
-	void pop_front()
+	void popFront()
 	{
 		if (head == NULL) return;
 		// Создаём указатель на второй элемент
@@ -300,7 +296,7 @@ public:
 		count--;
 	}
 	//Удаление последнего элемента списка
-	void pop_back()
+	void popBack()
 	{
 		if (tail == NULL) return;
 		// Создаём указатель на предпоследний элемент
@@ -329,13 +325,13 @@ public:
 		// Если это первый элемент, то удаляем спереди
 		if (ptr->prev == NULL)
 		{
-			pop_front();
+			popFront();
 			return;
 		}
 		// Если последний, то сзади
 		if (ptr->next == NULL)
 		{
-			pop_back();
+			popBack();
 			return;
 		}
 		// Создаём указатели на смежные к удалённому элементы
@@ -351,13 +347,13 @@ public:
 	void ClearList()
 	{
 		while (head != NULL)
-			pop_front();
+			popFront();
 		count = 0;
 	}
 	//Вывод списка на экран	
 	void Show(int highlightIndex = -1, int sortColumn = -1, bool isAscending = true)
 	{
-		if (this->head == NULL) 
+		if (this->head == NULL)
 		{
 			cout << "   [ Список пуст ]\n";
 			return;
@@ -367,15 +363,15 @@ public:
 		const string HIGHLIGHT = "\033[1;30;47m";
 
 		// Символы стрелок
-		string up = " \xE2\x86\x91";   
-		string down = " \xE2\x86\x93"; 
+		string up = " \xE2\x86\x91";
+		string down = " \xE2\x86\x93";
 
 		// Функция-помощник для отрисовки стрелки у нужного столбца
-		auto getArrow = [&](int colIndex) 
+		auto getArrow = [&](int colIndex)
 			{
-			if (sortColumn != colIndex) 
-				return string("");
-			return isAscending ? up : down;
+				if (sortColumn != colIndex)
+					return string("");
+				return isAscending ? up : down;
 			};
 
 		// Печать шапки с динамическими стрелками
@@ -392,7 +388,7 @@ public:
 		int i = 1;
 		for (Node* ptr = this->head; ptr != NULL; ptr = ptr->next)
 		{
-			if (i == highlightIndex) 
+			if (i == highlightIndex)
 				cout << HIGHLIGHT;
 
 			string indexStr = to_string(i) + ")";
@@ -400,17 +396,17 @@ public:
 
 			string b = ptr->data.brand;
 			string p = ptr->data.proc;
-			if (utf8_length(b) > 19) b = b.substr(0, 16) + "...";
-			if (utf8_length(p) > 19) p = p.substr(0, 16) + "...";
-			cout << left << pad_right(b, 20);
-			cout << left << pad_right(p, 20);
+			if (utf8Length(b) > 19) b = b.substr(0, 16) + "...";
+			if (utf8Length(p) > 19) p = p.substr(0, 16) + "...";
+			cout << left << padRight(b, 20);
+			cout << left << padRight(p, 20);
 
 			cout << right << setw(7) << ptr->data.ram << " GB";
 			cout << right << setw(11) << ptr->data.memory << " GB";
 			cout << right << setw(12) << ptr->data.memory_count;
 			cout << right << setw(14) << fixed << setprecision(2) << ptr->data.price;
 
-			if (i == highlightIndex) 
+			if (i == highlightIndex)
 				cout << RESET;
 			cout << "\n";
 			i++;
@@ -466,22 +462,16 @@ public:
 		// Если такого нет, 
 		if (right == NULL)
 			// то всавляем в конец списка
-			return push_back(comp);
+			return pushBack(comp);
 		// Записываем элемент перед текущим
 		Node* left = right->prev;
 		// Если такого нет, 
 		if (left == NULL)
 			// то вставляем в начало списка
-			return push_front(comp);
+			return pushFront(comp);
 		// Выделяем память под новый элемент и записываем указатель на эту память
 		Node* ptr = (Node*)malloc(sizeof(Node));
 		// Передаём данные в новую запись
-			/*strcpy(ptr->brand, data.brand);
-			strcpy(ptr->proc, data.proc);
-			ptr->ram = data.ram;
-			ptr->memory = data.memory;
-			ptr->memory_count = data.memory_count;
-			ptr->price = data.price;*/
 		ptr->data = comp;
 		// Меняем местами указатели
 		ptr->prev = left;
@@ -496,30 +486,9 @@ public:
 	{
 		// Выделяем память под временный элемент и записываем указатель на эту память		
 		Computer temp = Computer(first->data);
-		// Передаём в него данные
-		/*strcpy(temp->brand, first->brand);
-		strcpy(temp->proc, first->proc);
-		temp->ram = first->ram;
-		temp->memory = first->memory;
-		temp->memory_count = first->memory_count;
-		temp->price = first->price;*/
+
 		first->data = second->data;
 		second->data = temp;
-		/*strcpy(first->brand, second->brand);
-		strcpy(first->proc, second->proc);
-		first->ram = second->ram;
-		first->memory = second->memory;
-		first->memory_count = second->memory_count;
-		first->price = second->price;
-
-		strcpy(second->brand, temp->brand);
-		strcpy(second->proc, temp->proc);
-		second->ram = temp->ram;
-		second->memory = temp->memory;
-		second->memory_count = temp->memory_count;
-		second->price = temp->price;*/
-		// Освобождаем ранее выделенную память
-		//free(temp);
 	}
 	// Функция получения суммы цены всех компьютеров в списке
 	float GetSumm()
@@ -536,7 +505,7 @@ public:
 };
 //Поиск по текстовым полям
 List search(List& list, string s)
-{
+{ 
 	// Инициализируем список для вывода результатов поиска
 	List result;
 	int i = 0;
@@ -544,9 +513,9 @@ List search(List& list, string s)
 	for (Node* ptr = list.head; ptr != NULL; ptr = ptr->next)
 	{
 		// Сравниваем результаты выполнения функции поиска из библиотеки для работы со строками
-		if (((((string)(ptr->data.brand))).find(s) != string::npos) || ((string)(ptr->data.proc)).find(s) != string::npos)
+		if ((((string)(ptr->data.brand)).find(s) != string::npos) || ((string)(ptr->data.proc)).find(s) != string::npos)
 		{
-			result.push_back(list.getAt(i)->data);
+			result.pushBack(list.getAt(i)->data);
 		}
 		i++;
 	}
@@ -564,7 +533,7 @@ List search(List& list, float input)
 		// Сравниваем данные текущего элемента с введёнными
 		if ((ptr->data.ram) == input || ptr->data.memory == input || ptr->data.memory_count == input || ptr->data.price == input)
 		{
-			result.push_back(list.getAt(i)->data);
+			result.pushBack(ptr->data);
 		}
 		i++;
 	}
@@ -587,15 +556,14 @@ List filter(List& list, bool(*func)(Computer, Computer), float item)
 		// Для сравнения с искомыми данными используем функции сравнения определённых полей
 		if (func(ptr->data, temp))
 		{
-			result.push_back(list.getAt(i)->data);
+			result.pushBack(ptr->data);
 		}
 		i++;
 	}
-	//free(temp);
 	return result;
 }
 //Чтение структуры из файла
-void _readStruct(List& list)
+void readStruct(List& list)
 {
 	Node* computer = (Node*)malloc(sizeof(Node));
 	// Переменная для работы с файлом
@@ -616,7 +584,7 @@ void _readStruct(List& list)
 			// Считываем из файла 1 структуру размера Computer			
 			fread(computer, sizeof(Computer), 1, file);
 			// Добавляем в список прочитанную структуру
-			list.push_back(computer->data);
+			list.pushBack(computer->data);
 			i += sizeof(Computer);
 		}
 		// Закрываем файл
@@ -661,7 +629,7 @@ void LoadFromTextFile(List& list, string filename)
 		// Считываем остаток строки после последнего числа, чтобы подготовиться к следующему getline
 		file.ignore((numeric_limits<streamsize>::max)(), '\n');
 
-		list.push_back(temp);
+		list.pushBack(temp);
 
 		if (file.fail())
 			break; // Если данные закончились раньше времени
@@ -672,9 +640,9 @@ void LoadFromTextFile(List& list, string filename)
 	_getch();
 }
 //Запись структуры в файл
-void _writeStruct(List list)
+void writeStruct(List list)
 {
-	if (list.count == 0) 
+	if (list.count == 0)
 	{
 		remove("data.bin"); // Если список пуст, просто удаляем файл
 		return;
@@ -999,33 +967,34 @@ void FilterMenu(List& list)
 }
 // Определение типа указателя на функцию сравнения
 typedef bool (*CompareFunc)(const Computer, const Computer);
+struct SortPair
+{
+	CompareFunc asc;
+	CompareFunc desc;
+	string name;
+};
+// Массив пар функций: {По возрастанию, По убыванию}
+static SortPair options[] =
+{
+	{ AscByBrand,        DescByBrand,        "Manufacturer" },
+	{ AscByProc,         DescByProc,         "Processor"    },
+	{ AscByRam,          DescByRam,          "RAM"          },
+	{ AscByMemory,       DescByMemory,       "Memory"       },
+	{ AscByMemory_count, DescByMemory_count, "Memory count" },
+	{ AscByPrice,        DescByPrice,        "Price"        }
+};
 // Меню для сортировки
 void SortMenu(List& list)
 {
 	int currentSortCol = -1;
 	bool asc = true;
-	// Массив пар функций: {По возрастанию, По убыванию}
-	struct SortPair
-	{
-		CompareFunc asc;
-		CompareFunc desc;
-		string name;
-	};
 
-	SortPair options[] =
-	{
-		{ AscByBrand,        DescByBrand,        "Manufacturer" },
-		{ AscByProc,         DescByProc,         "Processor"    },
-		{ AscByRam,          DescByRam,          "RAM"          },
-		{ AscByMemory,       DescByMemory,       "Memory"       },
-		{ AscByMemory_count, DescByMemory_count, "Memory count" },
-		{ AscByPrice,        DescByPrice,        "Price"        }
-	};
+
 
 	int flag = 0; // 0 - ASC, 1 - DESC
 	char key = 0;
 
-	while (key != 27) 
+	while (key != 27)
 	{ // 27 - ESC
 		RefreshScreen(list, -1, currentSortCol, asc);
 		cout << "\nSort by ... (Current order: " << (flag == 0 ? "[A-Z / 0-9]" : "[Z-A / 9-0]") << ")\n\n";
@@ -1034,7 +1003,7 @@ void SortMenu(List& list)
 			cout << i + 1 << "." << options[i].name << "\n";
 		}
 		cout << "ESC. Back\n";
-		
+
 		key = _getch();
 		// Преобразуем символ в индекс (от '1'..'6' до 0..5)
 		int index = key - '1';
@@ -1052,7 +1021,7 @@ void SortMenu(List& list)
 	}
 }
 // Меню для поиска
-void SearchMenu(List& list) 
+void SearchMenu(List& list)
 {
 	system("cls");
 	cout << "Choose search option!\n\n";
@@ -1062,10 +1031,10 @@ void SearchMenu(List& list)
 
 	char choice = _getch();
 
-	if (choice == 27) 
+	if (choice == 27)
 		return; // Выход по ESC
 
-	if (choice == '1') 
+	if (choice == '1')
 	{ // Поиск по тексту
 		system("cls");
 		cout << "Search for (text): ";
@@ -1087,13 +1056,13 @@ void SearchMenu(List& list)
 		_getch();
 		result.ClearList();
 	}
-	else if (choice == '2') 
+	else if (choice == '2')
 	{ // Поиск по числу
 		system("cls");
 		cout << "Search for (number): ";
 
 		float s;
-		if (tryInputFloat(s)) 
+		if (tryInputFloat(s))
 		{
 			List result = search(list, s);
 			system("cls"); // Очистка экрана
@@ -1118,7 +1087,7 @@ void DrawHeader(string title, bool showTotal = false, List* list = nullptr) {
 	cout << "==================================================\n";
 	cout << "  " << title << "\n";
 	cout << "==================================================\n";
-	if (showTotal && list) 
+	if (showTotal && list)
 	{
 		cout << " Total records: " << list->count;
 		cout << " | Total Price: $" << fixed << setprecision(2) << list->GetSumm() << "\n";
@@ -1126,9 +1095,9 @@ void DrawHeader(string title, bool showTotal = false, List* list = nullptr) {
 	}
 }
 // Меню, если список пуст
-void HandleEmptyList(List& list) 
+void HandleEmptyList(List& list)
 {
-	while (list.count == 0) 
+	while (list.count == 0)
 	{
 		DrawHeader("DATABASE EMPTY");
 		cout << "\n [!] No computers found in the system.\n\n";
@@ -1137,16 +1106,16 @@ void HandleEmptyList(List& list)
 		cout << " >> ";
 
 		char choice = _getch();
-		if (choice == 27) 
+		if (choice == 27)
 		{
 			remove("data.bin");
 			exit(0);
 		}
-		else if (choice == '1') 
+		else if (choice == '1')
 		{
 			DrawHeader("ADD COMPUTER");
 			cout << " 1. Manual input\n";
-			cout << " 2. Import from text file (data.txt)\n"; // Наш новый пункт
+			cout << " 2. Import from text file (data.txt)\n";
 			cout << " ESC. Back\n";
 
 			char addChoice = _getch();
@@ -1155,7 +1124,7 @@ void HandleEmptyList(List& list)
 				Computer temp;
 				if (temp.CompInput())
 				{
-					list.push_back(temp); // Добавляем только если ввод прошел до конца
+					list.pushBack(temp); // Добавляем только если ввод прошел до конца
 					cout << "\n [OK] Computer added successfully!";
 				}
 				else {
@@ -1170,62 +1139,66 @@ void HandleEmptyList(List& list)
 	}
 }
 // Управление стрелками
-int SelectIndex(List& list, string title) 
+int SelectIndex(List& list, string title)
 {
-	int currentPos = 1;
+	int currentPos = 0;
 	int key = 0;
-
-	while (true) 
+	while (true)
 	{
-		DrawHeader(title + " (W/S - Move, ENTER - Select, ESC - Cancel)");
-		list.Show(currentPos); // Вызываем вашу новую Show с подсветкой
+		DrawHeader(title + " (\xE2\x86\x91/\xE2\x86\x93 - Move, ENTER - Select, ESC - Cancel)");
+		// Вызываем Show с подсветкой
+		if (currentPos < 0)
+			currentPos = currentPos + list.count+1;
+		list.Show((currentPos%list.count)+1);
 
-		key = _getch();
-
-		// Обработка стрелок
-		if (key == 0 || key == 224) 
-		{
+		// Обработка стрелок	
 			key = _getch();
-			if (key == 72 && currentPos > 1) 
-				currentPos--;						// Стрелка вверх
-			if (key == 80 && currentPos < list.count) 
-				currentPos++;						// Стрелка вниз
-			if (key == 72 && currentPos <= 1)
-				currentPos = list.count;
-			if (key == 80 && currentPos >= list.count)
-				currentPos = 1;
-		}
-		// Обработка W / S
-		else if ((key == 'w' || key == 'W') && currentPos > 1) 
-			currentPos--;
-		else if ((key == 's' || key == 'S') && currentPos < list.count) 
-			currentPos++;
-		else if ((key == 'w' || key == 'W') && currentPos <= 1)
-			currentPos = list.count;
-		else if ((key == 's' || key == 'S') && currentPos >= list.count)
-			currentPos=1;
+				// Стрелка вверх
+			if (key == 72)
+				currentPos--;						
+				// Стрелка вниз
+			if (key == 80)
+				currentPos++;						
 		// Enter
-		else if (key == 13) 
+		else if (key == 13)
 			return currentPos;
 		// Esc
-		else if (key == 27) 
+		else if (key == 27)
 			return 0;
 	}
 }
+// Функция для изменения размера консоли для корректного отображения 
+void ResizeConsoleHalfScreen() 
+{
+	HWND hwnd = GetConsoleWindow();
 
+	// В Windows 11 терминал — это родительское окно
+	HWND hwndParent = GetParent(hwnd);
+	HWND targetHwnd = (hwndParent != NULL) ? hwndParent : hwnd;
+
+	RECT workArea;
+	SystemParametersInfo(SPI_GETWORKAREA, 0, &workArea, 0);
+
+	int width = (workArea.right - workArea.left) / 2;
+	int height = workArea.bottom - workArea.top;
+
+	// Используем SetWindowPos вместо MoveWindow для надежности
+	SetWindowPos(targetHwnd, NULL, workArea.left, workArea.top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
+}
 int main()
 {
+	ResizeConsoleHalfScreen();
 	SetConsoleCP(CP_UTF8);
 	SetConsoleOutputCP(CP_UTF8);
 	setlocale(LC_ALL, ".UTF8");
 	List list;
-	_readStruct(list);
+	readStruct(list);
 
 	char menu = 0;
 
-	while (menu != 27) 
+	while (menu != 27)
 	{
-		if (list.count == 0) 
+		if (list.count == 0)
 			HandleEmptyList(list);
 
 		DrawHeader("MAIN MENU", true, &list);
@@ -1239,11 +1212,11 @@ int main()
 
 		menu = _getch();
 
-		switch (menu) 
+		switch (menu)
 		{
-		// MAin menu
-		case '1': 
-		{ 
+			// MAin menu
+		case '1':
+		{
 			char sub = 0;
 			while (sub != 27)
 			{
@@ -1251,9 +1224,9 @@ int main()
 				list.Show();
 				cout << "\n [1] Search | [2] Sort | [3] Filter | [ESC] Back\n";
 				sub = _getch();
-				if (sub == '1') 
+				if (sub == '1')
 					SearchMenu(list);
-				if (sub == '2') 
+				if (sub == '2')
 					SortMenu(list);
 				if (sub == '3')
 					FilterMenu(list);
@@ -1261,61 +1234,64 @@ int main()
 			break;
 		}
 		// ADD
-		case '2': { 
+		case '2': {
 			DrawHeader("ADD COMPUTER");
 			cout << " 1. Manual input\n";
 			cout << " 2. Import from text file (data.txt)\n"; // Наш новый пункт
 			cout << " ESC. Back\n";
 
 			char addChoice = _getch();
-			if (addChoice == '1') 
+			if (addChoice == '1')
 			{
 				Computer temp;
-				if (temp.CompInput()) 
+				if (temp.CompInput())
 				{
-					list.push_back(temp); // Добавляем только если ввод прошел до конца
+					list.pushBack(temp); // Добавляем только если ввод прошел до конца
 					cout << "\n [OK] Computer added successfully!";
 				}
 				else {
 					cout << "\n [!] Input canceled. Record not saved.";
 				}
 			}
-			else if (addChoice == '2') 
+			else if (addChoice == '2')
 			{
 				LoadFromTextFile(list, "data.txt");
 			}
 			break;
 		}
-		// EDIT
-		case '3': 
-		{ 
+				// EDIT
+		case '3':
+		{
 			int idx = SelectIndex(list, "EDIT MODE"); // Интерактивный выбор
-			if (idx > 0) 
+			if (idx > 0)
 			{
 				DrawHeader("EDITING COMPUTER #" + to_string(idx));
 				Computer temp;
-				temp.CompInput(); // Ввод новых данных
+				if(temp.CompInput())
+				{
+				// Ввод новых данных
 				list[idx - 1]->data = temp;
 				cout << "\n [OK] Data updated successfully! Press any key...";
+				}
 				_getch();
 			}
 			break;
 		}
 		// DELETE
-		case '4': 
-		{ 
+		case '4':
+		{
 			int idx = SelectIndex(list, "DELETE MODE"); // Интерактивный выбор
-			if (idx > 0) 
+			if (idx > 0)
 			{
 				// Добавим подтверждение для безопасности
 				cout << "\n [!] Are you sure you want to delete record #" << idx << "? Press Enter to confirm";
 				char confirm = _getch();
-				if (confirm == 13) 
+				if (confirm == 13)
 				{
 					list.erase(idx - 1);
 					cout << "\n [OK] Deleted.";
 				}
-				else 
+				else
 				{
 					cout << "\n [X] Canceled.";
 				}
@@ -1324,13 +1300,13 @@ int main()
 			break;
 		}
 		// MEGA DELETE
-		case '5': 
+		case '5':
 		{
 			DrawHeader("WARNING: DESTRUCTIVE ACTION");
 			system("color 0C"); // Красный текст
 			cout << "\n [!] Are you sure you want to delete ALL data?\n";
 			cout << " Press Enter to confirm, any other key to cancel.\n";
-			if (_getch() == 13) 
+			if (_getch() == 13)
 			{
 				list.ClearList();
 				remove("data.bin");
@@ -1342,7 +1318,7 @@ int main()
 		}
 		}
 	}
-	_writeStruct(list);
+	writeStruct(list);
 	list.ClearList();
 	return 0;
 }
